@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "name": "frontend",
     "short_name": "frontend",
+=======
+    "name": "mobile_app_capstone",
+    "short_name": "mobile_app_capstone",
+>>>>>>> 229955f (login screen update)
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
