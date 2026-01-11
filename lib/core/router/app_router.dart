@@ -6,7 +6,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../presentation/views/home/home_screen.dart';
+import '../../presentation/views/login/login_screen.dart';
 import '../../presentation/views/onboarding_view.dart';
+import '../../presentation/views/signup/signup_screen.dart';
 import '../../presentation/views/splash/splash_screen.dart';
 
 /// Application route paths.
@@ -19,6 +22,12 @@ abstract final class AppRoutes {
   
   /// Home route (placeholder)
   static const String home = '/home';
+  
+  /// Login route
+  static const String login = '/login';
+  
+  /// Sign up route
+  static const String signup = '/signup';
 }
 
 /// Application router configuration.
@@ -71,22 +80,48 @@ class AppRouter {
         ),
       ),
       
-      // Home screen (placeholder)
+      // Home screen
       GoRoute(
         path: AppRoutes.home,
         name: 'home',
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const _PlaceholderHome(),
+          child: const HomeScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Login screen
+      GoRoute(
+        path: AppRoutes.login,
+        name: 'login',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Sign up screen
+      GoRoute(
+        path: AppRoutes.signup,
+        name: 'signup',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SignUpScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
               child: child,
             );
           },
@@ -94,21 +129,4 @@ class AppRouter {
       ),
     ],
   );
-}
-
-/// Placeholder home screen for demonstration.
-class _PlaceholderHome extends StatelessWidget {
-  const _PlaceholderHome();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('MSME Pathways'),
-      ),
-      body: const Center(
-        child: Text('Main App Content'),
-      ),
-    );
-  }
 }
