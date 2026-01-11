@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../loan/loan_details_screen.dart';
+import '../support/support_chat_screen.dart';
+import '../profile/profile_screen.dart';
+
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
 const Color _kPrimaryLight = Color(0xFF4DB6AC);
@@ -22,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  int _selectedIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -65,57 +70,74 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBackgroundColor,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // Custom app bar with gradient
-              _buildSliverAppBar(context),
-              
-              // Main content
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    // Welcome card
-                    _buildWelcomeCard(),
-                    const SizedBox(height: 24),
-                    
-                    // Financial overview section
-                    _buildSectionTitle('Financial Overview'),
-                    const SizedBox(height: 12),
-                    _buildFinancialCards(),
-                    const SizedBox(height: 24),
-                    
-                    // Quick actions section
-                    _buildSectionTitle('Quick Actions'),
-                    const SizedBox(height: 12),
-                    _buildQuickActions(),
-                    const SizedBox(height: 24),
-                    
-                    // Learning resources section
-                    _buildSectionTitle('Learning Resources'),
-                    const SizedBox(height: 12),
-                    _buildLearningResources(),
-                    const SizedBox(height: 24),
-                    
-                    // Recent activity section
-                    _buildSectionTitle('Recent Activity'),
-                    const SizedBox(height: 12),
-                    _buildRecentActivity(),
-                    const SizedBox(height: 32),
-                  ]),
-                ),
-              ),
-            ],
-          ),
-        ),
+      backgroundColor: _selectedIndex == 0 ? _kBackgroundColor : const Color(0xFFF5F7FA),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          // Home tab
+          _buildHomeTab(),
+          // Loan tab
+          const LoanDetailsScreen(),
+          // Chat tab
+          const SupportChatScreen(),
+          // Profile tab
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  /// Builds the home tab content.
+  Widget _buildHomeTab() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Custom app bar with gradient
+            _buildSliverAppBar(context),
+            
+            // Main content
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // Welcome card
+                  _buildWelcomeCard(),
+                  const SizedBox(height: 24),
+                  
+                  // Financial overview section
+                  _buildSectionTitle('Financial Overview'),
+                  const SizedBox(height: 12),
+                  _buildFinancialCards(),
+                  const SizedBox(height: 24),
+                  
+                  // Quick actions section
+                  _buildSectionTitle('Quick Actions'),
+                  const SizedBox(height: 12),
+                  _buildQuickActions(),
+                  const SizedBox(height: 24),
+                  
+                  // Learning resources section
+                  _buildSectionTitle('Learning Resources'),
+                  const SizedBox(height: 12),
+                  _buildLearningResources(),
+                  const SizedBox(height: 24),
+                  
+                  // Recent activity section
+                  _buildSectionTitle('Recent Activity'),
+                  const SizedBox(height: 12),
+                  _buildRecentActivity(),
+                  const SizedBox(height: 32),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -138,10 +160,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_rounded, 'Home', true),
-              _buildNavItem(Icons.school_outlined, 'Learn', false),
-              _buildNavItem(Icons.analytics_outlined, 'Insights', false),
-              _buildNavItem(Icons.person_outline_rounded, 'Profile', false),
+              _buildNavItem(Icons.home_rounded, 'Home', 0),
+              _buildNavItem(Icons.account_balance_wallet_rounded, 'Loan', 1),
+              _buildNavItem(Icons.chat_bubble_outline_rounded, 'Chat', 2),
+              _buildNavItem(Icons.person_outline_rounded, 'Profile', 3),
             ],
           ),
         ),
@@ -150,15 +172,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds a single navigation item.
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    final isActive = _selectedIndex == index;
+    const primaryColor = Color(0xFF3DBA6F); // Green color from redesigned screens
+    
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: isActive
             ? BoxDecoration(
-                color: _kPrimaryColor.withValues(alpha: 0.1),
+                color: primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               )
             : null,
@@ -167,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             Icon(
               icon,
-              color: isActive ? _kPrimaryColor : Colors.grey[500],
+              color: isActive ? primaryColor : Colors.grey[500],
               size: 26,
             ),
             const SizedBox(height: 4),
@@ -175,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               label,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: isActive ? _kPrimaryColor : Colors.grey[500],
+                color: isActive ? primaryColor : Colors.grey[500],
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
               ),
             ),

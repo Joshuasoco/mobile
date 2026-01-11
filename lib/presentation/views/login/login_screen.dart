@@ -48,8 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleForgotPassword() {
-    // TODO: Navigate to forgot password
-    debugPrint('Forgot password pressed');
+    context.push('/forgot-password');
   }
 
   void _handleSignUp() {
@@ -404,20 +403,19 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         
-        // Forgot password
-        TextButton(
-          onPressed: _handleForgotPassword,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: Text(
-            'Forget Password?',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: _kPrimaryColor,
-              fontWeight: FontWeight.w500,
+        // Forgot password - improved responsiveness
+        InkWell(
+          onTap: _handleForgotPassword,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Text(
+              'Forget Password?',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: _kPrimaryColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),

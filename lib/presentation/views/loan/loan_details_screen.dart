@@ -1,171 +1,307 @@
 /// MSME Pathways - Smart Loan Support Screen
 ///
 /// Displays current loan details, repayment progress, and eligibility checklist.
+/// Features iOS-style modern fintech UI with green color palette.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/theme/app_colors.dart';
 
-/// Loan details and support screen.
+/// Loan details and support screen with modern UI.
 class LoanDetailsScreen extends StatelessWidget {
   const LoanDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Smart Loan Support'),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-      ),
-      backgroundColor: AppColors.backgroundSubtle,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // User Summary Card
-              _buildUserSummaryCard(),
-              const SizedBox(height: 20),
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with user info
+                _buildHeader(),
+                const SizedBox(height: 24),
 
-              // Loan Details Card
-              _buildLoanDetailsCard(),
-              const SizedBox(height: 24),
+                // Active Loan Card
+                _buildActiveLoanCard(),
+                const SizedBox(height: 24),
 
-              // Action Buttons
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Repay Now',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textPrimary,
-                  side: BorderSide(color: Colors.grey[300]!),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'View Loan Details',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+                // Eligibility Requirements
+                _buildEligibilitySection(),
+                const SizedBox(height: 32),
 
-              const SizedBox(height: 32),
-
-              // Eligibility Checklist
-              Text(
-                'Eligibility Checklist',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildEligibilityItem('Valid Government ID', true),
-              _buildEligibilityItem('Barangay Certificate', true),
-              _buildEligibilityItem('Active Mobile Number', true),
-              _buildEligibilityItem('Business Permit', false),
-
-               const SizedBox(height: 24),
-               
-               Center(
-                 child: TextButton(
-                   onPressed: () {},
-                   child: Text(
-                     'Need help? Learn more about loans',
+                // Help Link
+                Center(
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Need help? Learn more about loans',
                       style: GoogleFonts.inter(
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
-                   ),
-                 ),
-               ),
-               const SizedBox(height: 32),
-
-            ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildUserSummaryCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-             padding: const EdgeInsets.all(2),
-             decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primary, width: 2),
-             ),
-             child: const CircleAvatar(
-              radius: 24,
-              backgroundColor: AppColors.backgroundSubtle,
-              child: Icon(Icons.person, color: Colors.grey),
+  /// Builds the header with user avatar and info.
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        // User avatar
+        Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              width: 2,
             ),
           ),
-          const SizedBox(width: 16),
-          Column(
+          child: const CircleAvatar(
+            radius: 24,
+            backgroundColor: Color(0xFFE8F5E9),
+            child: Icon(
+              Icons.person_rounded,
+              color: AppColors.primary,
+              size: 28,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+
+        // User name and role
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Juan Dela Cruz',
+                'Maria Santos',
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: const Color(0xFF2D3748),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Microentrepreneur',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Notification bell
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.notifications_outlined,
+            color: AppColors.primary,
+            size: 24,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the active loan card.
+  Widget _buildActiveLoanCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Card header
+          Text(
+            'Active Loan',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF2D3748),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Business Capital',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Loan amount and interest rate
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '₱25,000',
+                      style: GoogleFonts.poppins(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(
-                margin: const EdgeInsets.only(top: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: const Color(0xFFF0F9FF),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Microentrepreneur',
+                  '8% per year',
                   style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Repayment status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '4 of 12 months paid',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '33%',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: 0.33,
+              minHeight: 8,
+              backgroundColor: const Color(0xFFE8F5E9),
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Payment details
+          Text(
+            '₱8,333 paid • Next payment: Jan 20',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Action buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Repay Now',
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF2D3748),
+                    side: BorderSide(color: Colors.grey[300]!),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'View Loan Details',
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -176,152 +312,57 @@ class LoanDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoanDetailsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 16,
-            offset: Offset(0, 4),
+  /// Builds the eligibility requirements section.
+  Widget _buildEligibilitySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Eligibility Requirements',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF2D3748),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Business Expansion Loan',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Container(
-                 padding: const EdgeInsets.all(6),
-                 decoration: BoxDecoration(
-                   color: AppColors.primary.withValues(alpha: 0.1),
-                   shape: BoxShape.circle,
-                 ),
-                 child: Icon(
-                   Icons.trending_up,
-                   size: 20,
-                   color: AppColors.primary,
-                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '₱25,000.00',
-            style: GoogleFonts.poppins(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
-          ),
-           Text(
-            '8% Interest per year',
-             style: GoogleFonts.inter(
-              fontSize: 12,
-              color: AppColors.success,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Repayment Status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Repayment Status',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                '4 of 12 months',
-                 style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: 4/12, // 33%
-              minHeight: 10,
-              backgroundColor: AppColors.backgroundSubtle,
-              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               Text(
-                 'Paid: ₱8,600',
-                 style: GoogleFonts.inter(
-                   fontSize: 12,
-                   color: AppColors.textSecondary,
-                 ),
-               ),
-                Text(
-                 'Next: Oct 15',
-                 style: GoogleFonts.inter(
-                   fontSize: 12,
-                   fontWeight: FontWeight.w600,
-                   color: AppColors.textPrimary,
-                 ),
-               ),
-             ],
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        _buildEligibilityItem('Valid ID', true),
+        const SizedBox(height: 12),
+        _buildEligibilityItem('Proof of Business', true),
+        const SizedBox(height: 12),
+        _buildEligibilityItem('Good Credit Score', true),
+      ],
     );
   }
 
+  /// Builds a single eligibility checklist item.
   Widget _buildEligibilityItem(String title, bool isCompleted) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-           Container(
-             padding: const EdgeInsets.all(4),
-             decoration: BoxDecoration(
-               color: isCompleted ? AppColors.primary : Colors.grey[300],
-               shape: BoxShape.circle,
-             ),
-             child: const Icon(
-               Icons.check,
-               size: 14,
-               color: Colors.white,
-             ),
-           ),
-           const SizedBox(width: 12),
-           Text(
-             title,
-             style: GoogleFonts.inter(
-               fontSize: 15,
-               color: isCompleted ? AppColors.textPrimary : Colors.grey[500],
-               fontWeight: isCompleted ? FontWeight.w500 : FontWeight.w400,
-             ),
-           ),
-        ],
-      ),
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: isCompleted ? AppColors.primary : Colors.grey[300],
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check,
+            size: 16,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            color: isCompleted
+                ? const Color(0xFF2D3748)
+                : Colors.grey[500],
+            fontWeight: isCompleted ? FontWeight.w500 : FontWeight.w400,
+          ),
+        ),
+      ],
     );
   }
 }

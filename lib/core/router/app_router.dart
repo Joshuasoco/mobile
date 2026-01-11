@@ -6,6 +6,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../presentation/views/auth/forgot_password_screen.dart';
+import '../../presentation/views/auth/otp_verification_screen.dart';
+import '../../presentation/views/auth/reset_password_screen.dart';
 import '../../presentation/views/home/home_screen.dart';
 import '../../presentation/views/login/login_screen.dart';
 import '../../presentation/views/onboarding_view.dart';
@@ -28,6 +31,15 @@ abstract final class AppRoutes {
   
   /// Sign up route
   static const String signup = '/signup';
+  
+  /// Forgot password route
+  static const String forgotPassword = '/forgot-password';
+  
+  /// OTP verification route
+  static const String otpVerification = '/otp-verification';
+  
+  /// Reset password route
+  static const String resetPassword = '/reset-password';
 }
 
 /// Application router configuration.
@@ -119,6 +131,56 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const SignUpScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Forgot password screen
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: 'forgotPassword',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ForgotPasswordScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // OTP verification screen
+      GoRoute(
+        path: AppRoutes.otpVerification,
+        name: 'otpVerification',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: OTPVerificationScreen(
+            email: state.extra as String?,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Reset password screen
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        name: 'resetPassword',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ResetPasswordScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,
