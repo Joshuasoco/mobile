@@ -145,4 +145,49 @@ abstract final class AppStrings {
   
   /// Splash logo semantic label
   static const String splashLogoSemantics = 'MSME Pathways logo';
+
+  // ============================================================
+  // TERMS & PRIVACY POLICY STRINGS
+  // ============================================================
+  
+  /// Terms & Privacy screen title
+  static const String termsPrivacyTitle = 'Terms & Privacy Policy';
+  
+  /// Terms & Privacy screen subtitle
+  static const String termsPrivacySubtitle = 'Please review before continuing';
+  
+  /// Terms of Service tab label
+  static const String termsOfService = 'Terms of Service';
+  
+  /// Privacy Policy tab label
+  static const String privacyPolicy = 'Privacy Policy';
+  
+  /// Accept checkbox label
+  static const String acceptTermsLabel = 
+      'I have read and agree to the Terms of Service and Privacy Policy';
+  
+  /// Accept button text
+  static const String acceptAndContinue = 'Accept & Continue';
+  
+  /// Decline button text
+  static const String decline = 'Decline';
+  
+  /// Decline dialog title
+  static const String declineDialogTitle = 'Decline Terms?';
+  
+  /// Decline dialog message
+  static const String declineDialogMessage = 
+      'You must accept the Terms of Service and Privacy Policy to use '
+      'MSME Pathways. Would you like to go back?';
+  
+  /// Stay button text (decline dialog)
+  static const String stay = 'Stay';
+  
+  /// Go Back button text (decline dialog)
+  static const String goBack = 'Go Back';
+  
+  /// Terms & Privacy semantics
+  static const String termsPrivacySemantics = 
+      'Terms of Service and Privacy Policy acceptance screen';
 }
+

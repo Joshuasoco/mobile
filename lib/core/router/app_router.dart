@@ -12,6 +12,7 @@ import '../../presentation/views/auth/reset_password_screen.dart';
 import '../../presentation/views/home/home_screen.dart';
 import '../../presentation/views/login/login_screen.dart';
 import '../../presentation/views/onboarding_view.dart';
+import '../../presentation/views/policy/terms_privacy_screen.dart';
 import '../../presentation/views/signup/signup_screen.dart';
 import '../../presentation/views/splash/splash_screen.dart';
 
@@ -22,6 +23,9 @@ abstract final class AppRoutes {
   
   /// Onboarding route
   static const String onboarding = '/onboarding';
+  
+  /// Terms & Privacy Policy route
+  static const String termsPrivacy = '/terms-privacy';
   
   /// Home route (placeholder)
   static const String home = '/home';
@@ -83,6 +87,22 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const OnboardingView(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Terms & Privacy screen
+      GoRoute(
+        path: AppRoutes.termsPrivacy,
+        name: 'termsPrivacy',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const TermsPrivacyScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,

@@ -346,7 +346,7 @@ class _CompletedState extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => context.go('/login'),
+                onPressed: () => context.go('/terms-privacy'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00897B),
                   foregroundColor: Colors.white,
