@@ -197,11 +197,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLoginCard(double screenWidth, double bottomPadding) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(
+      margin: const EdgeInsets.only(
         top: 24,
-        bottom: bottomPadding > 0 ? 0 : 16,
       ),
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      padding: EdgeInsets.fromLTRB(24, 32, 24, bottomPadding > 0 ? bottomPadding + 24 : 24),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
