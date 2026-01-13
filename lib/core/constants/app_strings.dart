@@ -19,80 +19,23 @@ abstract final class AppStrings {
   static const String tagline = 'Your path to financial growth';
 
   // ============================================================
-  // ONBOARDING PAGE 1 - Welcome & Problem Statement
+  // ONBOARDING PAGES - Tagalog titles (minimal design, no subtitles)
   // ============================================================
   
-  /// Page 1 headline
+  /// Page 1 headline - "Start Your Business's New Chapter"
   static const String onboarding1Title = 
-      'Your Path to Financial\nGrowth Starts Here';
+      'Simulan ang Bagong Yugto ng Iyong Negosyo';
   
-  /// Page 1 description - addresses financial exclusion challenge
-  static const String onboarding1Subtitle = 
-      'Many hardworking Filipinos like you find it difficult to '
-      'access formal loans. We\'re here to change that.';
-
-  // ============================================================
-  // ONBOARDING PAGE 2 - Solution Introduction
-  // ============================================================
-  
-  /// Page 2 headline
+  /// Page 2 headline - "Easy to Understand, No Complications"
   static const String onboarding2Title = 
-      'Smart Guidance,\nSimplified Lending';
+      'Madaling Maintindihan, Walang Komplikasyon';
   
-  /// Page 2 description - explains AI-powered features
-  static const String onboarding2Subtitle = 
-      'Our AI assistant guides you through the lending process, '
-      'helping you understand your options and prepare for success.';
-
-  // ============================================================
-  // ONBOARDING PAGE 3 - Empowerment & Trust
-  // ============================================================
-  
-  /// Page 3 headline
+  /// Page 3 headline - "You Control Your Future"
   static const String onboarding3Title = 
-      'Build Your Business\nwith Confidence';
-  
-  /// Page 3 description - addresses no credit history concern
-  static const String onboarding3Subtitle = 
-      'No credit history? No problem. We use alternative data '
-      'to help you demonstrate your business potential.';
+      'Ikaw ang May Kontrol sa Iyong Kinabukasan';
 
   // ============================================================
-  // ONBOARDING PAGE 4 - Features Overview
-  // ============================================================
-  
-  /// Page 4 headline
-  static const String onboarding4Title = 
-      'Everything You Need\nto Succeed';
-  
-  /// Page 4 description - summarizes key features
-  static const String onboarding4Subtitle = 
-      'Financial education, loan pre-qualification, and personalized '
-      'guidance — all in one place.';
-  
-  /// Feature 1 title
-  static const String feature1Title = 'Smart Loan Matching';
-  
-  /// Feature 1 description
-  static const String feature1Description = 
-      'Get matched with lenders suited to your needs';
-  
-  /// Feature 2 title
-  static const String feature2Title = 'Financial Education';
-  
-  /// Feature 2 description
-  static const String feature2Description = 
-      'Learn essential skills for business success';
-  
-  /// Feature 3 title
-  static const String feature3Title = 'Progress Tracking';
-  
-  /// Feature 3 description
-  static const String feature3Description = 
-      'Monitor your readiness for formal lending';
-
-  // ============================================================
-  // BUTTON LABELS
+  // BUTTON LABELS (English)
   // ============================================================
   
   /// Skip button text
@@ -190,4 +133,3 @@ abstract final class AppStrings {
   static const String termsPrivacySemantics = 
       'Terms of Service and Privacy Policy acceptance screen';
 }
-

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../core/theme/app_colors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../home/home_screen.dart';
 import '../loan/loan_details_screen.dart';
 import '../profile/profile_screen.dart';

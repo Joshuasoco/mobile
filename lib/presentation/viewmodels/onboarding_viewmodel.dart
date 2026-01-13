@@ -11,17 +11,12 @@ import '../../data/repositories/onboarding_repository.dart';
 /// ViewModel for the onboarding flow implementing the MVVM pattern.
 /// 
 /// Manages:
-/// - Current page state
+/// - Current page state (3 pages)
 /// - Navigation between pages (next, previous, skip)
 /// - Completion status
 /// - PageController for smooth transitions
-/// 
-/// Uses [ChangeNotifier] for reactive state updates with Provider.
 class OnboardingViewModel extends ChangeNotifier {
   /// Creates an OnboardingViewModel with the given repository.
-  /// 
-  /// The [repository] defaults to [OnboardingRepository] singleton
-  /// but can be injected for testing.
   OnboardingViewModel({
     IOnboardingRepository? repository,
   }) : _repository = repository ?? OnboardingRepository() {
@@ -38,17 +33,17 @@ class OnboardingViewModel extends ChangeNotifier {
   // State
   // ============================================================
   
-  /// List of onboarding pages
+  /// List of onboarding pages (3 pages)
   List<OnboardingModel> _pages = [];
   
   /// Current page index (0-based)
   int _currentPage = 0;
   
-  /// Whether the onboarding is complete and user should proceed to main app
+  /// Whether the onboarding is complete
   bool _isComplete = false;
   
-  /// Loading state for async operations
-  bool _isLoading = false;
+  /// Loading state
+  bool _isLoading = true;
   
   /// Error message if any
   String? _error;
@@ -79,7 +74,7 @@ class OnboardingViewModel extends ChangeNotifier {
   /// Error message if any
   String? get error => _error;
   
-  /// Total number of pages
+  /// Total number of pages (3)
   int get totalPages => _pages.length;
   
   /// Whether currently on the first page
@@ -125,8 +120,6 @@ class OnboardingViewModel extends ChangeNotifier {
   }
   
   /// Navigates to the previous page.
-  /// 
-  /// Does nothing if already on the first page.
   void previousPage() {
     if (!isFirstPage) {
       _animateToPage(_currentPage - 1);
@@ -134,15 +127,11 @@ class OnboardingViewModel extends ChangeNotifier {
   }
   
   /// Skips to the last page.
-  /// 
-  /// Allows users to bypass the onboarding tutorial.
   void skip() {
     _animateToPage(_pages.length - 1);
   }
   
   /// Navigates to a specific page by index.
-  /// 
-  /// Validates the index before navigation.
   void goToPage(int index) {
     if (index >= 0 && index < _pages.length) {
       _animateToPage(index);
@@ -150,8 +139,6 @@ class OnboardingViewModel extends ChangeNotifier {
   }
   
   /// Updates the current page index when user swipes.
-  /// 
-  /// Called from PageView's onPageChanged callback.
   void onPageChanged(int index) {
     if (_currentPage != index) {
       _currentPage = index;
@@ -160,14 +147,12 @@ class OnboardingViewModel extends ChangeNotifier {
   }
   
   /// Marks onboarding as complete.
-  /// 
-  /// Should trigger navigation to the main app.
   void completeOnboarding() {
     _isComplete = true;
     notifyListeners();
   }
   
-  /// Animates to the specified page with a smooth transition.
+  /// Animates to the specified page.
   void _animateToPage(int page) {
     _currentPage = page;
     pageController.animateToPage(

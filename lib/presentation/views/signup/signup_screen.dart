@@ -214,7 +214,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       width: double.infinity,
       margin: EdgeInsets.only(
         top: 16,
-        bottom: bottomPadding > 0 ? 0 : 16,
       ),
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       decoration: const BoxDecoration(

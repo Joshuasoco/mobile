@@ -1,33 +1,48 @@
 /// MSME Pathways - Onboarding View
 /// 
-/// Main onboarding screen with page navigation and animations.
+/// Main onboarding screen with contained images and minimal design.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../core/constants/app_strings.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../viewmodels/onboarding_viewmodel.dart';
-import '../widgets/animated_button.dart';
-import '../widgets/animated_gradient_background.dart';
-import '../widgets/custom_page_indicator.dart';
-import '../widgets/onboarding_page_content.dart';
+import '../widgets/fullscreen_onboarding_page.dart';
 
-/// Main onboarding view that displays the 4-page onboarding flow.
+/// Main onboarding view with 3 image pages.
 /// 
 /// Features:
-/// - Smooth page transitions with gesture support
-/// - Skip, Next, and Get Started buttons
-/// - Animated gradient background
-/// - Page indicator with progress tracking
-/// - Accessibility support
-class OnboardingView extends StatelessWidget {
+/// - Contained images with titles below
+/// - Smooth dot indicator
+/// - "Get Started" button on final page
+/// - Skip button (optional)
+class OnboardingView extends StatefulWidget {
   /// Creates the onboarding view.
   const OnboardingView({super.key});
+
+  @override
+  State<OnboardingView> createState() => _OnboardingViewState();
+}
+
+class _OnboardingViewState extends State<OnboardingView> {
+  @override
+  void initState() {
+    super.initState();
+    // Set light status bar
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,59 +60,56 @@ class _OnboardingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedGradientBackground(
-        child: SafeArea(
-          child: Consumer<OnboardingViewModel>(
-            builder: (context, viewModel, _) {
-              // Handle loading state
-              if (viewModel.isLoading) {
-                return const _LoadingState();
-              }
+      backgroundColor: Colors.white,
+      body: Consumer<OnboardingViewModel>(
+        builder: (context, viewModel, _) {
+          // Handle loading state
+          if (viewModel.isLoading) {
+            return const _LoadingState();
+          }
 
-              // Handle error state
-              if (viewModel.error != null) {
-                return _ErrorState(error: viewModel.error!);
-              }
+          // Handle error state
+          if (viewModel.error != null) {
+            return _ErrorState(error: viewModel.error!);
+          }
 
-              // Handle onboarding complete state
-              if (viewModel.isComplete) {
-                // In production, this would navigate to the main app
-                // For now, we'll show a completion message
-                return const _CompletedState();
-              }
+          // Handle completion - navigate to terms
+          if (viewModel.isComplete) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/terms-privacy');
+            });
+            return const SizedBox.shrink();
+          }
 
-              // Main onboarding content
-              return Column(
-                children: [
-                  // Skip button
-                  _SkipButton(
-                    isVisible: !viewModel.isLastPage,
-                    onTap: viewModel.skip,
-                  ),
-                  
-                  // Page content
-                  Expanded(
-                    child: PageView.builder(
-                      controller: viewModel.pageController,
-                      onPageChanged: viewModel.onPageChanged,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: viewModel.totalPages,
-                      itemBuilder: (context, index) {
-                        return OnboardingPageContent(
-                          model: viewModel.pages[index],
-                          isActive: index == viewModel.currentPage,
-                        );
-                      },
-                    ),
-                  ),
-                  
-                  // Bottom navigation section
-                  _BottomNavigation(viewModel: viewModel),
-                ],
-              );
-            },
-          ),
-        ),
+          // Main onboarding content
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // Page view with images
+              PageView.builder(
+                controller: viewModel.pageController,
+                onPageChanged: viewModel.onPageChanged,
+                physics: const BouncingScrollPhysics(),
+                itemCount: viewModel.totalPages,
+                itemBuilder: (context, index) {
+                  return FullscreenOnboardingPage(
+                    model: viewModel.pages[index],
+                    isActive: index == viewModel.currentPage,
+                  );
+                },
+              ),
+              
+              // Skip button (top right)
+              _SkipButton(
+                isVisible: !viewModel.isLastPage,
+                onTap: viewModel.skip,
+              ),
+              
+              // Bottom navigation (dots + button)
+              _BottomNavigation(viewModel: viewModel),
+            ],
+          );
+        },
       ),
     );
   }
@@ -115,21 +127,30 @@ class _SkipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topRight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: isVisible ? 1.0 : 0.0,
-          child: Semantics(
-            button: true,
-            label: AppStrings.skipButtonSemantics,
-            child: TextButton(
-              onPressed: isVisible ? onTap : null,
-              child: Text(
-                AppStrings.skip,
-                style: AppTextStyles.skipButton,
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
+      right: 16,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: isVisible ? 1.0 : 0.0,
+        child: Semantics(
+          button: true,
+          label: AppStrings.skipButtonSemantics,
+          child: TextButton(
+            onPressed: isVisible ? onTap : null,
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFF5F7FA),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: Text(
+              AppStrings.skip,
+              style: TextStyle(
+                color: const Color(0xFF718096),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -141,7 +162,7 @@ class _SkipButton extends StatelessWidget {
   }
 }
 
-/// Bottom navigation section with page indicator and navigation buttons.
+/// Bottom navigation section with page indicator and Get Started button.
 class _BottomNavigation extends StatelessWidget {
   const _BottomNavigation({required this.viewModel});
 
@@ -149,73 +170,80 @@ class _BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+    return Positioned(
+      left: 24,
+      right: 24,
+      bottom: MediaQuery.of(context).padding.bottom + 16,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Page indicator
-          CustomPageIndicator(
+          // Page indicator (dots)
+          SmoothPageIndicator(
             controller: viewModel.pageController,
             count: viewModel.totalPages,
+            effect: ExpandingDotsEffect(
+              dotHeight: 8,
+              dotWidth: 8,
+              expansionFactor: 3,
+              spacing: 8,
+              activeDotColor: const Color(0xFF1565C0),
+              dotColor: const Color(0xFFCBD5E0),
+            ),
             onDotClicked: viewModel.goToPage,
           )
               .animate()
               .fadeIn(duration: 400.ms, delay: 500.ms, curve: Curves.easeOut),
           
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           
-          // Navigation buttons
-          _buildNavigationButtons(context),
+          // Get Started button (only on last page)
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: viewModel.isLastPage
+                ? _GetStartedButton(onPressed: viewModel.completeOnboarding)
+                : const SizedBox(height: 56), // Placeholder for layout
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildNavigationButtons(BuildContext context) {
-    // On last page, show "Get Started" button
-    if (viewModel.isLastPage) {
-      return AnimatedButton(
-        text: AppStrings.getStarted,
-        onPressed: viewModel.completeOnboarding,
-        semanticLabel: AppStrings.getStartedSemantics,
-        width: double.infinity,
-      )
-          .animate()
-          .fadeIn(duration: 300.ms, curve: Curves.easeOut)
-          .slideY(begin: 0.2, end: 0, duration: 300.ms, curve: Curves.easeOut);
-    }
-    
-    // Otherwise show Next button (and optionally Previous)
-    return Row(
-      children: [
-        // Previous button (only show if not on first page)
-        if (!viewModel.isFirstPage) ...[
-          Expanded(
-            child: AnimatedButton(
-              text: AppStrings.back,
-              onPressed: viewModel.previousPage,
-              isOutlined: true,
-              useGradient: false,
-              semanticLabel: AppStrings.previousButtonSemantics,
-            ),
-          ),
-          const SizedBox(width: 16),
-        ],
-        
-        // Next button
-        Expanded(
-          flex: viewModel.isFirstPage ? 1 : 1,
-          child: AnimatedButton(
-            text: AppStrings.next,
-            onPressed: viewModel.nextPage,
-            semanticLabel: AppStrings.nextButtonSemantics,
+/// Get Started button for the final page.
+class _GetStartedButton extends StatelessWidget {
+  const _GetStartedButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1565C0), // Primary blue
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: const Color(0x401565C0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-      ],
+        child: const Text(
+          AppStrings.getStarted,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
     )
         .animate()
-        .fadeIn(duration: 300.ms, delay: 400.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 300.ms, curve: Curves.easeOut)
+        .slideY(begin: 0.2, end: 0, duration: 300.ms, curve: Curves.easeOut);
   }
 }
 
@@ -225,29 +253,24 @@ class _LoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // MSME logo with pulse animation
-          Image.asset(
-            'assets/images/msmeLogo.png',
-            width: 120,
-            height: 120,
-            fit: BoxFit.contain,
-          )
-              .animate(onPlay: (controller) => controller.repeat(reverse: true))
-              .fadeIn(duration: 800.ms)
-              .then()
-              .scale(
-                begin: const Offset(1.0, 1.0),
-                end: const Offset(1.1, 1.1),
-                duration: 1200.ms,
-                curve: Curves.easeInOut,
-              ),
-          const SizedBox(height: 24),
-          const Text('Loading...'),
-        ],
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Image.asset(
+          'assets/images/msmeLogo.png',
+          width: 120,
+          height: 120,
+          fit: BoxFit.contain,
+        )
+            .animate(onPlay: (controller) => controller.repeat(reverse: true))
+            .fadeIn(duration: 800.ms)
+            .then()
+            .scale(
+              begin: const Offset(1.0, 1.0),
+              end: const Offset(1.1, 1.1),
+              duration: 1200.ms,
+              curve: Curves.easeInOut,
+            ),
       ),
     );
   }
@@ -261,114 +284,40 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Oops! Something went wrong',
-              style: AppTextStyles.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error,
-              style: AppTextStyles.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Completed state widget (placeholder for navigation to main app).
-class _CompletedState extends StatelessWidget {
-  const _CompletedState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                shape: BoxShape.circle,
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Color(0xFFE53E3E),
               ),
-              child: const Icon(
-                Icons.check_rounded,
-                size: 48,
-                color: AppColors.textLight,
+              const SizedBox(height: 16),
+              const Text(
+                'Oops! Something went wrong',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2D3748),
+                ),
+                textAlign: TextAlign.center,
               ),
-            )
-                .animate()
-                .scale(
-                  begin: const Offset(0, 0),
-                  end: const Offset(1, 1),
-                  duration: 500.ms,
-                  curve: Curves.elasticOut,
+              const SizedBox(height: 8),
+              Text(
+                error,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF718096),
                 ),
-            const SizedBox(height: 32),
-            Text(
-              'Welcome to MSME Pathways!',
-              style: AppTextStyles.headlineMedium,
-              textAlign: TextAlign.center,
-            )
-                .animate()
-                .fadeIn(duration: 400.ms, delay: 300.ms)
-                .slideY(begin: 0.3, end: 0, duration: 400.ms, delay: 300.ms),
-            const SizedBox(height: 12),
-            Text(
-              'Your journey to financial growth starts now.',
-              style: AppTextStyles.bodyLarge,
-              textAlign: TextAlign.center,
-            )
-                .animate()
-                .fadeIn(duration: 400.ms, delay: 400.ms)
-                .slideY(begin: 0.3, end: 0, duration: 400.ms, delay: 400.ms),
-            const SizedBox(height: 40),
-            // Log In button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => context.go('/terms-privacy'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00897B),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                ),
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                textAlign: TextAlign.center,
               ),
-            )
-                .animate()
-                .fadeIn(duration: 400.ms, delay: 500.ms)
-                .slideY(begin: 0.3, end: 0, duration: 400.ms, delay: 500.ms),
-          ],
+            ],
+          ),
         ),
       ),
     );
