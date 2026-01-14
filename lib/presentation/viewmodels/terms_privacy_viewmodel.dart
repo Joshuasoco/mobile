@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/services/app_state_service.dart';
 import '../../data/models/policy_section_model.dart';
 import '../../data/repositories/policy_repository.dart';
 
@@ -28,7 +29,9 @@ class TermsPrivacyViewModel extends ChangeNotifier {
   /// Creates the ViewModel with optional repository injection.
   TermsPrivacyViewModel({
     IPolicyRepository? repository,
-  }) : _repository = repository ?? PolicyRepository() {
+    AppStateService? appStateService,
+  }) : _repository = repository ?? PolicyRepository(),
+       _appStateService = appStateService ?? AppStateService() {
     _initialize();
   }
 
@@ -37,6 +40,7 @@ class TermsPrivacyViewModel extends ChangeNotifier {
   // ============================================================
   
   final IPolicyRepository _repository;
+  final AppStateService _appStateService;
 
   // ============================================================
   // State
@@ -248,6 +252,9 @@ class TermsPrivacyViewModel extends ChangeNotifier {
         jsonEncode(acceptance.toJson()),
       );
       await prefs.setString(_StorageKeys.acceptedVersion, _policyVersion);
+      
+      // Also save to AppStateService for unified routing
+      await _appStateService.setTermsAccepted();
       
       return true;
     } catch (e) {

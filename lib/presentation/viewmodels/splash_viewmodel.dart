@@ -1,37 +1,27 @@
 /// MSME Pathways - Splash ViewModel
 ///
 /// Business logic for the splash screen, handling initialization,
-/// first-launch detection, and navigation to the appropriate screen.
+/// app state detection, and navigation to the appropriate screen.
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-/// Navigation destination after splash screen.
-enum SplashNavigationTarget {
-  /// Navigate to onboarding for first-time users.
-  onboarding,
-
-  /// Navigate to login for returning users (not yet implemented).
-  login,
-
-  /// Navigate to home for authenticated users (not yet implemented).
-  home,
-}
+import '../../core/services/app_state_service.dart';
 
 /// ViewModel for splash screen business logic.
 ///
 /// Handles:
-/// - First launch detection using SharedPreferences
+/// - App state detection using AppStateService
 /// - Asset preloading (if needed)
 /// - Navigation timing and target determination
-/// - App initialization tasks
+/// - Smart routing based on completed steps
 class SplashViewModel extends ChangeNotifier {
   /// Creates a SplashViewModel instance.
   SplashViewModel({
     this.splashDuration = const Duration(milliseconds: 4000),
     this.minimumDuration = const Duration(milliseconds: 3500),
-  });
+    AppStateService? appStateService,
+  }) : _appStateService = appStateService ?? AppStateService();
 
   // ============================================================
   // CONFIGURATION
@@ -43,8 +33,8 @@ class SplashViewModel extends ChangeNotifier {
   /// Minimum duration to show splash (prevents flash).
   final Duration minimumDuration;
 
-  /// Key for storing first launch status in SharedPreferences.
-  static const String _firstLaunchKey = 'is_first_launch';
+  /// App state service for determining initial route.
+  final AppStateService _appStateService;
 
   // ============================================================
   // STATE
@@ -58,13 +48,9 @@ class SplashViewModel extends ChangeNotifier {
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
-  /// Whether this is the user's first launch.
-  bool _isFirstLaunch = true;
-  bool get isFirstLaunch => _isFirstLaunch;
-
-  /// The target screen to navigate to.
-  SplashNavigationTarget _navigationTarget = SplashNavigationTarget.onboarding;
-  SplashNavigationTarget get navigationTarget => _navigationTarget;
+  /// The target route path to navigate to.
+  String _targetRoute = '/onboarding';
+  String get targetRoute => _targetRoute;
 
   /// Whether navigation should proceed.
   bool _shouldNavigate = false;
@@ -74,6 +60,10 @@ class SplashViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  /// App launch state for debugging/logging.
+  AppLaunchState? _appState;
+  AppLaunchState? get appState => _appState;
+
   // ============================================================
   // INITIALIZATION
   // ============================================================
@@ -81,31 +71,34 @@ class SplashViewModel extends ChangeNotifier {
   /// Initialize the splash screen and determine navigation target.
   ///
   /// This method:
-  /// 1. Checks if this is the first launch
-  /// 2. Preloads any necessary assets
-  /// 3. Waits for minimum splash duration
-  /// 4. Sets the appropriate navigation target
+  /// 1. Loads app state from persistent storage
+  /// 2. Determines the appropriate route based on completed steps
+  /// 3. Preloads any necessary assets
+  /// 4. Waits for minimum splash duration
   Future<void> initialize() async {
     try {
       final startTime = DateTime.now();
 
-      // Step 1: Check first launch status
-      await _checkFirstLaunch();
-      _updateProgress(0.3);
+      // Step 1: Get app state
+      _updateProgress(0.2);
+      _appState = await _appStateService.getAppState();
+      debugPrint('SplashViewModel: App state loaded - $_appState');
+      _updateProgress(0.4);
 
-      // Step 2: Preload assets (can be extended)
-      await _preloadAssets();
+      // Step 2: Determine target route
+      _targetRoute = _appStateService.getRouteForState(_appState!);
+      debugPrint('SplashViewModel: Target route - $_targetRoute');
       _updateProgress(0.6);
 
-      // Step 3: Determine navigation target
-      _determineNavigationTarget();
-      _updateProgress(0.9);
+      // Step 3: Preload assets (can be extended)
+      await _preloadAssets();
+      _updateProgress(0.8);
 
       // Step 4: Ensure minimum splash duration
       final elapsed = DateTime.now().difference(startTime);
       final remainingTime = splashDuration - elapsed;
-      
-      if (remainingTime.isNegative == false && remainingTime.inMilliseconds > 0) {
+
+      if (!remainingTime.isNegative && remainingTime.inMilliseconds > 0) {
         await Future.delayed(remainingTime);
       }
 
@@ -118,27 +111,11 @@ class SplashViewModel extends ChangeNotifier {
       debugPrint('SplashViewModel initialization error: $e');
       debugPrint('Stack trace: $stackTrace');
       _errorMessage = 'Failed to initialize app. Please try again.';
-      
-      // Still allow navigation on error (fail gracefully)
+
+      // Default to onboarding on error (safest route)
+      _targetRoute = '/onboarding';
       _shouldNavigate = true;
       notifyListeners();
-    }
-  }
-
-  /// Check if this is the user's first launch.
-  Future<void> _checkFirstLaunch() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _isFirstLaunch = prefs.getBool(_firstLaunchKey) ?? true;
-      
-      // If first launch, mark it as no longer first launch for next time
-      if (_isFirstLaunch) {
-        await prefs.setBool(_firstLaunchKey, false);
-      }
-    } catch (e) {
-      debugPrint('Error checking first launch: $e');
-      // Default to first launch on error
-      _isFirstLaunch = true;
     }
   }
 
@@ -149,19 +126,7 @@ class SplashViewModel extends ChangeNotifier {
     // - Images
     // - Fonts
     // - Configuration data
-    // - User preferences
     await Future.delayed(const Duration(milliseconds: 100));
-  }
-
-  /// Determine where to navigate based on app state.
-  void _determineNavigationTarget() {
-    if (_isFirstLaunch) {
-      _navigationTarget = SplashNavigationTarget.onboarding;
-    } else {
-      // For now, always go to onboarding
-      // In future: check auth state to determine login vs home
-      _navigationTarget = SplashNavigationTarget.onboarding;
-    }
   }
 
   /// Update progress and notify listeners.
@@ -174,34 +139,19 @@ class SplashViewModel extends ChangeNotifier {
   // UTILITY METHODS
   // ============================================================
 
-  /// Get the route path for the navigation target.
-  String getTargetRoutePath() {
-    switch (_navigationTarget) {
-      case SplashNavigationTarget.onboarding:
-        return '/onboarding';
-      case SplashNavigationTarget.login:
-        return '/login';
-      case SplashNavigationTarget.home:
-        return '/home';
-    }
-  }
-
-  /// Reset first launch flag (for testing/development).
-  Future<void> resetFirstLaunch() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_firstLaunchKey, true);
-      _isFirstLaunch = true;
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error resetting first launch: $e');
-    }
-  }
+  /// Get the route path for navigation.
+  String getTargetRoutePath() => _targetRoute;
 
   /// Skip splash and navigate immediately.
   void skipSplash() {
     _shouldNavigate = true;
     _isInitialized = true;
     notifyListeners();
+  }
+
+  /// Reset app state (for testing/development).
+  Future<void> resetAppState() async {
+    await _appStateService.resetAllState();
+    debugPrint('SplashViewModel: App state reset');
   }
 }

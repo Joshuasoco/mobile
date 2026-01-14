@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/services/app_state_service.dart';
 import '../../data/models/onboarding_model.dart';
 import '../../data/repositories/onboarding_repository.dart';
 
@@ -13,13 +14,15 @@ import '../../data/repositories/onboarding_repository.dart';
 /// Manages:
 /// - Current page state (3 pages)
 /// - Navigation between pages (next, previous, skip)
-/// - Completion status
+/// - Completion status with persistence
 /// - PageController for smooth transitions
 class OnboardingViewModel extends ChangeNotifier {
   /// Creates an OnboardingViewModel with the given repository.
   OnboardingViewModel({
     IOnboardingRepository? repository,
-  }) : _repository = repository ?? OnboardingRepository() {
+    AppStateService? appStateService,
+  }) : _repository = repository ?? OnboardingRepository(),
+       _appStateService = appStateService ?? AppStateService() {
     _loadPages();
   }
 
@@ -28,6 +31,7 @@ class OnboardingViewModel extends ChangeNotifier {
   // ============================================================
   
   final IOnboardingRepository _repository;
+  final AppStateService _appStateService;
 
   // ============================================================
   // State
@@ -146,8 +150,11 @@ class OnboardingViewModel extends ChangeNotifier {
     }
   }
   
-  /// Marks onboarding as complete.
-  void completeOnboarding() {
+  /// Marks onboarding as complete and persists the flag.
+  Future<void> completeOnboarding() async {
+    // Save to persistent storage
+    await _appStateService.setOnboardingComplete();
+    
     _isComplete = true;
     notifyListeners();
   }

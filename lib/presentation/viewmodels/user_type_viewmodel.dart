@@ -4,21 +4,25 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/services/app_state_service.dart';
 import '../../data/models/user_type_model.dart';
 
 /// ViewModel for managing user type selection state.
 /// 
 /// Handles:
 /// - User type selection
-/// - Persistence of selection
+/// - Persistence via AppStateService
 /// - Navigation flow control
 class UserTypeViewModel extends ChangeNotifier {
   /// Creates the user type viewmodel.
-  UserTypeViewModel() {
+  UserTypeViewModel({
+    AppStateService? appStateService,
+  }) : _appStateService = appStateService ?? AppStateService() {
     _loadSavedSelection();
   }
+
+  final AppStateService _appStateService;
 
   /// Currently selected user type.
   UserType? _selectedType;
@@ -65,14 +69,9 @@ class UserTypeViewModel extends ChangeNotifier {
   /// Loads any previously saved selection.
   Future<void> _loadSavedSelection() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedType = prefs.getString('user_type');
-      
-      if (savedType != null) {
-        _selectedType = UserType.values.firstWhere(
-          (t) => t.name == savedType,
-          orElse: () => UserType.individual,
-        );
+      final userType = await _appStateService.getUserType();
+      if (userType != null) {
+        _selectedType = userType;
         notifyListeners();
       }
     } catch (e) {
@@ -90,12 +89,11 @@ class UserTypeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_type', _selectedType!.name);
+      final success = await _appStateService.setUserType(_selectedType!);
       
       _isLoading = false;
       notifyListeners();
-      return true;
+      return success;
     } catch (e) {
       _isLoading = false;
       _error = 'Failed to save selection. Please try again.';
@@ -106,19 +104,6 @@ class UserTypeViewModel extends ChangeNotifier {
 
   /// Static method to get the saved user type without ViewModel.
   static Future<UserType?> getSavedUserType() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedType = prefs.getString('user_type');
-      
-      if (savedType != null) {
-        return UserType.values.firstWhere(
-          (t) => t.name == savedType,
-          orElse: () => UserType.individual,
-        );
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    return AppStateService().getUserType();
   }
 }
