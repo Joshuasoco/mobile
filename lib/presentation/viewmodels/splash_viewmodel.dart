@@ -29,8 +29,8 @@ enum SplashNavigationTarget {
 class SplashViewModel extends ChangeNotifier {
   /// Creates a SplashViewModel instance.
   SplashViewModel({
-    this.splashDuration = const Duration(milliseconds: 2500),
-    this.minimumDuration = const Duration(milliseconds: 2000),
+    this.splashDuration = const Duration(milliseconds: 4000),
+    this.minimumDuration = const Duration(milliseconds: 3500),
   });
 
   // ============================================================

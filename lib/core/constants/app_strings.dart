@@ -24,15 +24,15 @@ abstract final class AppStrings {
   
   /// Page 1 headline - "Start Your Business's New Chapter"
   static const String onboarding1Title = 
-      'Simulan ang Bagong Yugto ng Iyong Negosyo';
+      'Nahihirapan Makakuha ng Pautang sa Bangko?';
   
   /// Page 2 headline - "Easy to Understand, No Complications"
   static const String onboarding2Title = 
-      'Madaling Maintindihan, Walang Komplikasyon';
+      'May AI na Tutulong sa Iyo Makakuha ng Bank Loan';
   
   /// Page 3 headline - "You Control Your Future"
   static const String onboarding3Title = 
-      'Ikaw ang May Kontrol sa Iyong Kinabukasan';
+      'Walang Credit History? Kaya Mo Pa Rin!';
 
   // ============================================================
   // BUTTON LABELS (English)

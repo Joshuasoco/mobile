@@ -10,7 +10,7 @@ abstract final class AppAssets {
   // ============================================================
   
   /// Onboarding page 1 - Welcome & Trust Building
-  static const String onboarding1 = 'assets/images/lastpog.png';
+  static const String onboarding1 = 'assets/images/lastpog_1.png';
   
   /// Onboarding page 2 - Solution & Empowerment
   static const String onboarding2 = 'assets/images/lastpog2.png';
