@@ -10,10 +10,12 @@ import '../../presentation/views/auth/forgot_password_screen.dart';
 import '../../presentation/views/auth/otp_verification_screen.dart';
 import '../../presentation/views/auth/reset_password_screen.dart';
 import '../../presentation/views/home/home_screen.dart';
+import '../../presentation/views/legal/legal_document_screen.dart';
 import '../../presentation/views/login/login_screen.dart';
 import '../../presentation/views/onboarding_view.dart';
 import '../../presentation/views/policy/terms_privacy_screen.dart';
 import '../../presentation/views/signup/signup_screen.dart';
+import '../../data/models/policy_section_model.dart';
 import '../../presentation/views/splash/splash_screen.dart';
 import '../../presentation/views/user_type/user_type_selector_screen.dart';
 
@@ -25,8 +27,11 @@ abstract final class AppRoutes {
   /// Onboarding route
   static const String onboarding = '/onboarding';
   
-  /// Terms & Privacy Policy route
+  /// Terms & Privacy Policy route (onboarding flow with acceptance)
   static const String termsPrivacy = '/terms-privacy';
+  
+  /// Legal document viewer route (read-only from login/signup)
+  static const String legal = '/legal';
   
   /// User type selector route
   static const String userType = '/user-type';
@@ -100,7 +105,7 @@ class AppRouter {
         ),
       ),
       
-      // Terms & Privacy screen
+      // Terms & Privacy screen (onboarding flow with acceptance)
       GoRoute(
         path: AppRoutes.termsPrivacy,
         name: 'termsPrivacy',
@@ -114,6 +119,33 @@ class AppRouter {
             );
           },
         ),
+      ),
+      
+      // Legal document viewer (read-only from login/signup)
+      GoRoute(
+        path: AppRoutes.legal,
+        name: 'legal',
+        pageBuilder: (context, state) {
+          // Accept PolicyType as extra for initial tab selection
+          final policyType = state.extra as PolicyType?;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: LegalDocumentScreen(initialDocumentType: policyType),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              // Slide up transition for modal feel
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+          );
+        },
       ),
       
       // User type selector screen

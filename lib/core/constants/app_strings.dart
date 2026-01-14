@@ -155,11 +155,11 @@ abstract final class AppStrings {
       'Para sa may-ari ng maliit na negosyo o enterprise';
   
   /// Continue button text (Filipino)
-  static const String userTypeContinue = 'Magpatuloy';
+  static const String userTypeContinue = 'Continue';
   
   /// Security/privacy note (Filipino)
   static const String userTypeSecurityNote = 
-      'Ligtas at pribado ang iyong impormasyon';
+      'Your information is safe and private';
   
   /// User type selector screen semantics
   static const String userTypeSelectorSemantics = 

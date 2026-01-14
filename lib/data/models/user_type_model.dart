@@ -20,9 +20,9 @@ extension UserTypeExtension on UserType {
   String get title {
     switch (this) {
       case UserType.individual:
-        return 'Indibidwal';
+        return 'Individual / Indibidwal';
       case UserType.business:
-        return 'Negosyo / MSME';
+        return 'Business / Negosyo / MSME';
     }
   }
   

@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../data/models/policy_section_model.dart';
+
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
 
@@ -61,13 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleTerms() {
-    // TODO: Navigate to terms
-    debugPrint('Terms pressed');
+    // Navigate to read-only legal document screen (Terms tab)
+    context.push('/legal', extra: PolicyType.termsOfService);
   }
 
   void _handlePrivacyPolicy() {
-    // TODO: Navigate to privacy policy
-    debugPrint('Privacy policy pressed');
+    // Navigate to read-only legal document screen (Privacy tab)
+    context.push('/legal', extra: PolicyType.privacyPolicy);
   }
 
   @override
