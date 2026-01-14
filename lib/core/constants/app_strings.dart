@@ -132,4 +132,36 @@ abstract final class AppStrings {
   /// Terms & Privacy semantics
   static const String termsPrivacySemantics = 
       'Terms of Service and Privacy Policy acceptance screen';
+
+  // ============================================================
+  // USER TYPE SELECTOR STRINGS
+  // ============================================================
+  
+  /// User type selector headline (Filipino)
+  static const String userTypeHeadline = 'Kumusta! Ikaw ba ay...';
+  
+  /// Individual option title
+  static const String userTypeIndividual = 'Indibidwal';
+  
+  /// Individual option description (Filipino)
+  static const String userTypeIndividualDesc = 
+      'Para sa personal loans, freelancers, at first-time borrowers';
+  
+  /// Business/MSME option title
+  static const String userTypeBusiness = 'Negosyo / MSME';
+  
+  /// Business/MSME option description (Filipino)
+  static const String userTypeBusinessDesc = 
+      'Para sa may-ari ng maliit na negosyo o enterprise';
+  
+  /// Continue button text (Filipino)
+  static const String userTypeContinue = 'Magpatuloy';
+  
+  /// Security/privacy note (Filipino)
+  static const String userTypeSecurityNote = 
+      'Ligtas at pribado ang iyong impormasyon';
+  
+  /// User type selector screen semantics
+  static const String userTypeSelectorSemantics = 
+      'User type selection screen. Choose between Individual or Business.';
 }

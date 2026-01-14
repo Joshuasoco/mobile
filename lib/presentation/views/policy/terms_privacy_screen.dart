@@ -286,8 +286,8 @@ class _TermsPrivacyContentState extends State<_TermsPrivacyContent>
       final success = await viewModel.acceptAndContinue();
       
       if (success && mounted) {
-        // Navigate to login screen
-        context.go('/login');
+        // Navigate to user type selector screen
+        context.go('/user-type');
       } else if (mounted) {
         _showErrorSnackbar('Failed to save acceptance. Please try again.');
       }

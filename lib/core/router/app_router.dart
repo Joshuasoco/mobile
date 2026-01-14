@@ -15,6 +15,7 @@ import '../../presentation/views/onboarding_view.dart';
 import '../../presentation/views/policy/terms_privacy_screen.dart';
 import '../../presentation/views/signup/signup_screen.dart';
 import '../../presentation/views/splash/splash_screen.dart';
+import '../../presentation/views/user_type/user_type_selector_screen.dart';
 
 /// Application route paths.
 abstract final class AppRoutes {
@@ -26,6 +27,9 @@ abstract final class AppRoutes {
   
   /// Terms & Privacy Policy route
   static const String termsPrivacy = '/terms-privacy';
+  
+  /// User type selector route
+  static const String userType = '/user-type';
   
   /// Home route (placeholder)
   static const String home = '/home';
@@ -103,6 +107,22 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const TermsPrivacyScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // User type selector screen
+      GoRoute(
+        path: AppRoutes.userType,
+        name: 'userType',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const UserTypeSelectorScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,
