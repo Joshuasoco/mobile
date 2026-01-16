@@ -1,37 +1,59 @@
-/// MSME Pathways - Modern Login Screen
+// MSME Pathways - Modern Login Screen
+//
+// A premium login screen with full-screen background, gradient overlay,
+// form fields, and social login options.
 ///
-/// A premium login screen with full-screen background, gradient overlay,
-/// form fields, and social login options.
+/// Refactored to follow MVVM architecture with LoginViewModel.
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../../data/models/policy_section_model.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../viewmodels/login_viewmodel.dart';
 
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
 
 /// Login screen with full-screen background and modern UI elements.
-class LoginScreen extends StatefulWidget {
+///
+/// Uses [LoginViewModel] for state management following MVVM pattern.
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => LoginViewModel(
+        authRepository: context.read<IAuthRepository>(),
+      ),
+      child: const _LoginScreenContent(),
+    );
+  }
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+/// Internal content widget that consumes the ViewModel.
+class _LoginScreenContent extends StatefulWidget {
+  const _LoginScreenContent();
+
+  @override
+  State<_LoginScreenContent> createState() => _LoginScreenContentState();
+}
+
+class _LoginScreenContentState extends State<_LoginScreenContent> {
   final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
+  // UI-only state (not business logic)
   bool _obscurePassword = true;
-  bool _rememberMe = false;
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -44,8 +66,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Navigate to home on successful login
-      context.go('/home');
+      context.read<LoginViewModel>().login(
+            _emailController.text,
+            _passwordController.text,
+          );
     }
   }
 
@@ -63,54 +87,92 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleTerms() {
-    // Navigate to read-only legal document screen (Terms tab)
     context.push('/legal', extra: PolicyType.termsOfService);
   }
 
   void _handlePrivacyPolicy() {
-    // Navigate to read-only legal document screen (Privacy tab)
     context.push('/legal', extra: PolicyType.privacyPolicy);
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Full-screen background image
-          _buildBackgroundImage(),
-          
-          // Dark gradient overlay
-          _buildGradientOverlay(),
-          
-          // Main content
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: screenHeight - 
-                      MediaQuery.of(context).padding.top - 
-                      bottomPadding,
+      body: Consumer<LoginViewModel>(
+        builder: (context, viewModel, child) {
+          // Handle navigation on success
+          if (viewModel.isSuccess) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/home');
+            });
+          }
+
+          // Show error snackbar
+          if (viewModel.hasError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(viewModel.errorMessage ?? 'Login failed'),
+                  backgroundColor: Colors.red[700],
+                  behavior: SnackBarBehavior.floating,
+                  action: SnackBarAction(
+                    label: 'Dismiss',
+                    textColor: Colors.white,
+                    onPressed: () => viewModel.clearError(),
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Logo section at top
-                    _buildLogoSection(screenHeight),
-                    
-                    // Login card at bottom
-                    _buildLoginCard(screenWidth, bottomPadding),
-                  ],
+              );
+              viewModel.clearError();
+            });
+          }
+
+          return Stack(
+            children: [
+              // Full-screen background image
+              _buildBackgroundImage(),
+
+              // Dark gradient overlay
+              _buildGradientOverlay(),
+
+              // Main content
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: screenHeight -
+                          MediaQuery.of(context).padding.top -
+                          bottomPadding,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Logo section at top
+                        _buildLogoSection(screenHeight),
+
+                        // Login card at bottom
+                        _buildLoginCard(bottomPadding, viewModel),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+
+              // Loading overlay
+              if (viewModel.isLoading)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: _kPrimaryColor,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -196,13 +258,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the login card container with form elements.
-  Widget _buildLoginCard(double screenWidth, double bottomPadding) {
+  Widget _buildLoginCard(double bottomPadding, LoginViewModel viewModel) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(
-        top: 24,
+      margin: const EdgeInsets.only(top: 24),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        32,
+        24,
+        bottomPadding > 0 ? bottomPadding + 24 : 24,
       ),
-      padding: EdgeInsets.fromLTRB(24, 32, 24, bottomPadding > 0 ? bottomPadding + 24 : 24),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -223,31 +288,31 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Form fields
-            _buildFullNameField(),
+            _buildEmailField(),
             const SizedBox(height: 16),
             _buildPasswordField(),
             const SizedBox(height: 12),
-            
+
             // Remember me & Forgot password row
-            _buildRememberForgotRow(),
+            _buildRememberForgotRow(viewModel),
             const SizedBox(height: 24),
-            
+
             // Login button
-            _buildLoginButton(),
+            _buildLoginButton(viewModel),
             const SizedBox(height: 16),
-            
+
             // Terms text
             _buildTermsText(),
             const SizedBox(height: 24),
-            
+
             // Divider with "or Log in with"
             _buildDivider(),
             const SizedBox(height: 20),
-            
+
             // Social login icons
             _buildSocialLoginRow(),
             const SizedBox(height: 24),
-            
+
             // Sign up link
             _buildSignUpLink(),
           ],
@@ -256,21 +321,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Builds the full name input field.
-  Widget _buildFullNameField() {
+  /// Builds the email input field.
+  Widget _buildEmailField() {
     return TextFormField(
-      controller: _fullNameController,
-      keyboardType: TextInputType.name,
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
       style: GoogleFonts.inter(fontSize: 16),
       decoration: InputDecoration(
-        hintText: 'Full Name',
+        hintText: 'Email Address',
         hintStyle: GoogleFonts.inter(
           color: Colors.grey[500],
           fontSize: 16,
         ),
         prefixIcon: Icon(
-          Icons.person_outline_rounded,
+          Icons.email_outlined,
           color: Colors.grey[600],
         ),
         filled: true,
@@ -366,7 +431,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the remember me checkbox and forgot password row.
-  Widget _buildRememberForgotRow() {
+  Widget _buildRememberForgotRow(LoginViewModel viewModel) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -377,11 +442,9 @@ class _LoginScreenState extends State<LoginScreen> {
               width: 24,
               height: 24,
               child: Checkbox(
-                value: _rememberMe,
+                value: viewModel.rememberMe,
                 onChanged: (value) {
-                  setState(() {
-                    _rememberMe = value ?? false;
-                  });
+                  viewModel.setRememberMe(value ?? false);
                 },
                 activeColor: _kPrimaryColor,
                 shape: RoundedRectangleBorder(
@@ -403,8 +466,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-        
-        // Forgot password - improved responsiveness
+
+        // Forgot password
         InkWell(
           onTap: _handleForgotPassword,
           borderRadius: BorderRadius.circular(8),
@@ -425,9 +488,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the main login button.
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(LoginViewModel viewModel) {
     return ElevatedButton(
-      onPressed: _handleLogin,
+      onPressed: viewModel.isLoading ? null : _handleLogin,
       style: ElevatedButton.styleFrom(
         backgroundColor: _kPrimaryColor,
         foregroundColor: Colors.white,
@@ -438,13 +501,22 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
-      child: Text(
-        'Log In',
-        style: GoogleFonts.poppins(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      child: viewModel.isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : Text(
+              'Log In',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
     );
   }
 

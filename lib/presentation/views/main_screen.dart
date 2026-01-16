@@ -1,18 +1,17 @@
-/// MSME Pathways - Main Screen Shell
-///
-/// This screen acts as the application shell, containing the bottom navigation
-/// bar and managing the effective content area. It persists navigation state
-/// across tab switches.
+// MSME Pathways - Main Screen Shell
+//
+// This screen acts as the application shell, containing the bottom navigation
+// bar and managing the effective content area. It persists navigation state
+// across tab switches.
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../home/home_screen.dart';
-import '../loan/loan_details_screen.dart';
-import '../profile/profile_screen.dart';
-import '../support/support_chat_screen.dart';
+import '../../core/theme/app_colors.dart';
+import 'home_screen.dart';
+import 'loan_details_screen.dart';
+import 'profile_screen.dart';
+import 'support_chat_screen.dart';
 
 /// Main screen shell with persistent bottom navigation.
 class MainScreen extends StatefulWidget {

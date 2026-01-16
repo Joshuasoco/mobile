@@ -13,7 +13,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/user_type_model.dart';
 import '../../viewmodels/user_type_viewmodel.dart';
-import '../../widgets/user_type/user_type_card.dart';
+import '../../widgets/onboarding/user_type_card.dart';
 
 /// User type selector screen.
 /// 

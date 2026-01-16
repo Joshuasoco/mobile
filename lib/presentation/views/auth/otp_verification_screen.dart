@@ -1,18 +1,25 @@
-/// MSME Pathways - OTP Verification Screen
+// MSME Pathways - OTP Verification Screen
+//
+// Allows users to enter the 6-digit OTP sent to their email.
 ///
-/// Allows users to enter the 6-digit OTP sent to their email.
+/// Refactored to follow MVVM architecture with OTPVerificationViewModel.
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/repositories/auth_repository.dart';
+import '../../viewmodels/otp_verification_viewmodel.dart';
 
 /// Primary accent color - green theme
 const Color _kPrimaryColor = Color(0xFF3DBA6F);
 
 /// OTP verification screen with 6-digit input.
-class OTPVerificationScreen extends StatefulWidget {
+///
+/// Uses [OTPVerificationViewModel] for state management following MVVM pattern.
+class OTPVerificationScreen extends StatelessWidget {
   const OTPVerificationScreen({
     super.key,
     this.email,
@@ -21,26 +28,31 @@ class OTPVerificationScreen extends StatefulWidget {
   final String? email;
 
   @override
-  State<OTPVerificationScreen> createState() => _OTPVerificationScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => OTPVerificationViewModel(
+        authRepository: context.read<IAuthRepository>(),
+        email: email ?? '',
+      ),
+      child: const _OTPVerificationContent(),
+    );
+  }
 }
 
-class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
+/// Internal content widget that consumes the ViewModel.
+class _OTPVerificationContent extends StatefulWidget {
+  const _OTPVerificationContent();
+
+  @override
+  State<_OTPVerificationContent> createState() => _OTPVerificationContentState();
+}
+
+class _OTPVerificationContentState extends State<_OTPVerificationContent> {
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-
-  bool _isLoading = false;
-  int _resendCountdown = 60;
-  Timer? _timer;
-  bool _canResend = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _startCountdown();
-  }
 
   @override
   void dispose() {
@@ -50,34 +62,26 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     for (var node in _focusNodes) {
       node.dispose();
     }
-    _timer?.cancel();
     super.dispose();
   }
 
-  void _startCountdown() {
-    _canResend = false;
-    _resendCountdown = 60;
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_resendCountdown > 0) {
-        setState(() {
-          _resendCountdown--;
-        });
-      } else {
-        setState(() {
-          _canResend = true;
-        });
-        timer.cancel();
-      }
-    });
+  String get _otp => _controllers.map((c) => c.text).join();
+
+  void _handleVerifyOTP() {
+    if (_otp.length != 6) {
+      _showError('Please enter the complete 6-digit code');
+      return;
+    }
+    context.read<OTPVerificationViewModel>().verifyOTP(_otp);
   }
 
   void _handleResendOTP() {
-    // Simulate resend API call
+    final viewModel = context.read<OTPVerificationViewModel>();
+    viewModel.resendOTP();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'OTP sent to ${widget.email ?? "your email"}',
+          'OTP sent to ${viewModel.maskedEmail}',
           style: GoogleFonts.inter(),
         ),
         backgroundColor: _kPrimaryColor,
@@ -87,32 +91,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         ),
       ),
     );
-    _startCountdown();
-  }
-
-  void _handleVerifyOTP() async {
-    final otp = _controllers.map((c) => c.text).join();
-    
-    if (otp.length != 6) {
-      _showError('Please enter the complete 6-digit code');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Navigate to reset password screen
-      context.push('/reset-password');
-    }
   }
 
   void _showError(String message) {
@@ -137,13 +115,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     }
   }
 
-  void _onBackspace(int index) {
-    if (index > 0) {
-      _controllers[index].clear();
-      _focusNodes[index - 1].requestFocus();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -159,175 +130,195 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: screenHeight * 0.05),
+      body: Consumer<OTPVerificationViewModel>(
+        builder: (context, viewModel, child) {
+          // Handle navigation on success
+          if (viewModel.isSuccess) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.push('/reset-password', extra: viewModel.email);
+            });
+          }
 
-              // Icon
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: _kPrimaryColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.mark_email_read_outlined,
-                  size: 50,
-                  color: _kPrimaryColor,
-                ),
-              ),
-              const SizedBox(height: 32),
+          // Show error snackbar
+          if (viewModel.hasError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showError(viewModel.errorMessage ?? 'Verification failed');
+              viewModel.clearError();
+            });
+          }
 
-              // Title
-              Text(
-                'Enter OTP',
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF2D3748),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
+          return SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: screenHeight * 0.05),
 
-              // Subtitle
-              Text(
-                'We\'ve sent a 6-digit code to\n${widget.email ?? "your email"}',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-
-              // OTP input boxes
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(6, (index) {
-                  return SizedBox(
-                    width: 48,
-                    child: TextFormField(
-                      controller: _controllers[index],
-                      focusNode: _focusNodes[index],
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      maxLength: 1,
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
+                  // Icon
+                  Center(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: _kPrimaryColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      decoration: InputDecoration(
-                        counterText: '',
-                        filled: true,
-                        fillColor: const Color(0xFFF5F7FA),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: _kPrimaryColor,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                        ),
+                      child: const Icon(
+                        Icons.mark_email_read_outlined,
+                        size: 50,
+                        color: _kPrimaryColor,
                       ),
-                      onChanged: (value) => _onChanged(value, index),
-                      onTap: () {
-                        // Clear on tap for easier re-entry
-                        _controllers[index].clear();
-                      },
-                      onEditingComplete: () {
-                        if (index < 5) {
-                          _focusNodes[index + 1].requestFocus();
-                        } else {
-                          _handleVerifyOTP();
-                        }
-                      },
                     ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 32),
-
-              // Verify button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleVerifyOTP,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _kPrimaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 4,
-                  shadowColor: _kPrimaryColor.withValues(alpha: 0.4),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
                   ),
-                  disabledBackgroundColor: Colors.grey[300],
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Verify OTP',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-              const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-              // Resend OTP
-              Center(
-                child: _canResend
-                    ? TextButton(
-                        onPressed: _handleResendOTP,
-                        child: Text(
-                          'Resend OTP',
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            color: _kPrimaryColor,
+                  // Title
+                  Text(
+                    'Enter OTP',
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF2D3748),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Subtitle
+                  Text(
+                    'We\'ve sent a 6-digit code to\n${viewModel.maskedEmail}',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: Colors.grey[600],
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+
+                  // OTP input boxes
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(6, (index) {
+                      return SizedBox(
+                        width: 48,
+                        child: TextFormField(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          maxLength: 1,
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
                             fontWeight: FontWeight.w600,
                           ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            counterText: '',
+                            filled: true,
+                            fillColor: const Color(0xFFF5F7FA),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: _kPrimaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                          ),
+                          onChanged: (value) => _onChanged(value, index),
+                          onTap: () {
+                            _controllers[index].clear();
+                          },
+                          onEditingComplete: () {
+                            if (index < 5) {
+                              _focusNodes[index + 1].requestFocus();
+                            } else {
+                              _handleVerifyOTP();
+                            }
+                          },
                         ),
-                      )
-                    : Text(
-                        'Resend OTP in $_resendCountdown seconds',
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          color: Colors.grey[600],
-                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Verify button
+                  ElevatedButton(
+                    onPressed: viewModel.isLoading ? null : _handleVerifyOTP,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kPrimaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shadowColor: _kPrimaryColor.withValues(alpha: 0.4),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      disabledBackgroundColor: Colors.grey[300],
+                    ),
+                    child: viewModel.isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'Verify OTP',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Resend OTP
+                  Center(
+                    child: viewModel.canResend
+                        ? TextButton(
+                            onPressed: _handleResendOTP,
+                            child: Text(
+                              'Resend OTP',
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                color: _kPrimaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'Resend OTP in ${viewModel.resendCountdown} seconds',
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

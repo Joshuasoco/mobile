@@ -9,11 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../viewmodels/splash_viewmodel.dart';
-import '../../widgets/splash/animated_logo.dart';
-import '../../widgets/splash/branding_text.dart';
-import '../../widgets/splash/gradient_background.dart';
-import '../../widgets/splash/loading_indicator.dart';
+import '../viewmodels/splash_viewmodel.dart';
+import '../widgets/splash/animated_logo.dart';
+import '../widgets/splash/branding_text.dart';
+import '../widgets/splash/gradient_background.dart';
+import '../widgets/splash/loading_indicator.dart';
 
 /// Splash screen for MSME Pathways application.
 ///

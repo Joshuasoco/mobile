@@ -1,32 +1,53 @@
-/// MSME Pathways - Home Screen
+// MSME Pathways - Home Screen
+//
+// A premium home screen displayed after successful login/signup.
+// Features a modern dashboard-style layout with quick actions,
+// financial overview, and personalized content.
 ///
-/// A premium home screen displayed after successful login/signup.
-/// Features a modern dashboard-style layout with quick actions,
-/// financial overview, and personalized content.
+/// Refactored to follow MVVM architecture with HomeViewModel.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-import '../loan/loan_details_screen.dart';
-import '../support/support_chat_screen.dart';
-import '../profile/profile_screen.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../viewmodels/home_viewmodel.dart';
+import 'loan_details_screen.dart';
+import 'support_chat_screen.dart';
+import 'profile_screen.dart';
 
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
-const Color _kPrimaryLight = Color(0xFF4DB6AC);
 const Color _kBackgroundColor = Color(0xFFF5F7FA);
 
 /// Home screen with dashboard layout and premium UI.
-class HomeScreen extends StatefulWidget {
+///
+/// Uses [HomeViewModel] for state management following MVVM pattern.
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => HomeViewModel(
+        authRepository: context.read<IAuthRepository>(),
+      ),
+      child: const _HomeScreenContent(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
+/// Internal content widget that consumes the ViewModel.
+class _HomeScreenContent extends StatefulWidget {
+  const _HomeScreenContent();
+
+  @override
+  State<_HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTickerProviderStateMixin {
+  // Animations remain as local UI state (not business logic)
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -69,27 +90,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _selectedIndex == 0 ? _kBackgroundColor : const Color(0xFFF5F7FA),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          // Home tab
-          _buildHomeTab(),
-          // Loan tab
-          const LoanDetailsScreen(),
-          // Chat tab
-          const SupportChatScreen(),
-          // Profile tab
-          const ProfileScreen(),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomNavBar(),
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        return Scaffold(
+          backgroundColor: viewModel.selectedTabIndex == 0 ? _kBackgroundColor : const Color(0xFFF5F7FA),
+          body: IndexedStack(
+            index: viewModel.selectedTabIndex,
+            children: [
+              // Home tab
+              _buildHomeTab(viewModel),
+              // Loan tab
+              const LoanDetailsScreen(),
+              // Chat tab
+              const SupportChatScreen(),
+              // Profile tab
+              const ProfileScreen(),
+            ],
+          ),
+          bottomNavigationBar: _buildBottomNavBar(viewModel),
+        );
+      },
     );
   }
 
   /// Builds the home tab content.
-  Widget _buildHomeTab() {
+  Widget _buildHomeTab(HomeViewModel viewModel) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -98,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           physics: const BouncingScrollPhysics(),
           slivers: [
             // Custom app bar with gradient
-            _buildSliverAppBar(context),
+            _buildSliverAppBar(context, viewModel),
             
             // Main content
             SliverPadding(
@@ -106,13 +131,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   // Welcome card
-                  _buildWelcomeCard(),
+                  _buildWelcomeCard(viewModel),
                   const SizedBox(height: 24),
                   
                   // Financial overview section
                   _buildSectionTitle('Financial Overview'),
                   const SizedBox(height: 12),
-                  _buildFinancialCards(),
+                  _buildFinancialCards(viewModel),
                   const SizedBox(height: 24),
                   
                   // Quick actions section
@@ -142,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds the bottom navigation bar.
-  Widget _buildBottomNavBar() {
+  Widget _buildBottomNavBar(HomeViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -160,10 +185,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_rounded, 'Home', 0),
-              _buildNavItem(Icons.account_balance_wallet_rounded, 'Loan', 1),
-              _buildNavItem(Icons.chat_bubble_outline_rounded, 'Chat', 2),
-              _buildNavItem(Icons.person_outline_rounded, 'Profile', 3),
+              _buildNavItem(Icons.home_rounded, 'Home', 0, viewModel),
+              _buildNavItem(Icons.account_balance_wallet_rounded, 'Loan', 1, viewModel),
+              _buildNavItem(Icons.chat_bubble_outline_rounded, 'Chat', 2, viewModel),
+              _buildNavItem(Icons.person_outline_rounded, 'Profile', 3, viewModel),
             ],
           ),
         ),
@@ -172,15 +197,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds a single navigation item.
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final isActive = _selectedIndex == index;
+  Widget _buildNavItem(IconData icon, String label, int index, HomeViewModel viewModel) {
+    final isActive = viewModel.selectedTabIndex == index;
     const primaryColor = Color(0xFF3DBA6F); // Green color from redesigned screens
     
     return InkWell(
       onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
+        viewModel.selectTab(index);
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -215,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds the custom sliver app bar with gradient background.
-  SliverAppBar _buildSliverAppBar(BuildContext context) {
+  SliverAppBar _buildSliverAppBar(BuildContext context, HomeViewModel viewModel) {
     return SliverAppBar(
       expandedHeight: 160,
       floating: false,
@@ -246,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hello, Entrepreneur! 👋',
+                        '${viewModel.greeting}, ${viewModel.userName}! 👋',
                         style: GoogleFonts.poppins(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
@@ -329,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds the welcome card with business status.
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(HomeViewModel viewModel) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -369,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '68%',
+                    viewModel.businessReadinessFormatted,
                     style: GoogleFonts.poppins(
                       fontSize: 36,
                       fontWeight: FontWeight.w700,
@@ -393,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '+12% this month',
+                      '${viewModel.monthlyImprovementFormatted} this month',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Colors.white,
@@ -410,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: 0.68,
+              value: viewModel.businessReadiness,
               backgroundColor: Colors.white.withValues(alpha: 0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
               minHeight: 8,
@@ -463,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Builds the financial overview cards.
-  Widget _buildFinancialCards() {
+  Widget _buildFinancialCards(HomeViewModel viewModel) {
     return Row(
       children: [
         Expanded(
@@ -472,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             iconColor: const Color(0xFF4CAF50),
             iconBgColor: const Color(0xFFE8F5E9),
             title: 'Loan Ready',
-            value: '₱50,000',
+            value: viewModel.maxLoanEligibleFormatted,
             subtitle: 'Max eligible',
           ),
         ),
@@ -483,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             iconColor: const Color(0xFF2196F3),
             iconBgColor: const Color(0xFFE3F2FD),
             title: 'Courses',
-            value: '3',
+            value: '${viewModel.completedCourses}',
             subtitle: 'Completed',
           ),
         ),

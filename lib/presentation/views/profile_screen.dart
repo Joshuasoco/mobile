@@ -1,13 +1,12 @@
-/// MSME Pathways - Profile Screen
-///
-/// Displays user profile information, settings, and account management options.
-/// Modern iOS-style fintech UI with green color palette.
+// MSME Pathways - Profile Screen
+//
+// Displays user profile information, settings, and account management options.
+// Modern iOS-style fintech UI with green color palette.
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Profile screen with user details and settings.
 class ProfileScreen extends StatelessWidget {

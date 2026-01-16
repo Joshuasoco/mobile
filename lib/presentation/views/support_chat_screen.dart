@@ -1,12 +1,12 @@
-/// MSME Pathways - Support Assistant Screen
-///
-/// Features AI-powered chat support, quick help topics, and contact options.
-/// Modern iOS-style fintech UI with green color palette.
+// MSME Pathways - Support Assistant Screen
+//
+// Features AI-powered chat support, quick help topics, and contact options.
+// Modern iOS-style fintech UI with green color palette.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Support chat and help center screen with modern UI.
 class SupportChatScreen extends StatelessWidget {

@@ -47,7 +47,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen>
   late List<PolicySectionModel> _termsSections;
   late List<PolicySectionModel> _privacySections;
   late String _policyVersion;
-  Set<String> _expandedSectionIds = {};
+  final Set<String> _expandedSectionIds = {};
 
   @override
   void initState() {

@@ -36,14 +36,14 @@ abstract final class PolicyContent {
   static const String companyName = 'MSME Pathways Inc.';
   
   /// [CUSTOMIZE] Support email address.
-  static const String supportEmail = 'support@msmepathways.ph';
+  static const String supportEmail = 'josh@msmepathways.ph';
   
   /// [CUSTOMIZE] Data Protection Officer email.
   static const String dpoEmail = 'dpo@msmepathways.ph';
   
   /// [CUSTOMIZE] Company address.
   static const String companyAddress = 
-      '[CUSTOMIZE] Company Address, City, Philippines';
+      'Pangasinan, Dagupan City, Philippines';
   
   /// [CUSTOMIZE] Website URL.
   static const String websiteUrl = 'https://msmepathways.ph';

@@ -1,44 +1,78 @@
-/// MSME Pathways - Sign Up Screen
+// MSME Pathways - Sign Up Screen
+//
+// A premium sign up screen with full-screen background, gradient overlay,
+// registration form fields, and social sign up options.
 ///
-/// A premium sign up screen with full-screen background, gradient overlay,
-/// registration form fields, and social sign up options.
+/// Refactored to follow MVVM architecture with SignupViewModel.
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../../data/models/policy_section_model.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../viewmodels/signup_viewmodel.dart';
 
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
 
 /// Sign up screen with full-screen background and modern UI elements.
-class SignUpScreen extends StatefulWidget {
+///
+/// Uses [SignupViewModel] for state management following MVVM pattern.
+class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => SignupViewModel(
+        authRepository: context.read<IAuthRepository>(),
+      ),
+      child: const _SignUpScreenContent(),
+    );
+  }
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+/// Internal content widget that consumes the ViewModel.
+class _SignUpScreenContent extends StatefulWidget {
+  const _SignUpScreenContent();
+
+  @override
+  State<_SignUpScreenContent> createState() => _SignUpScreenContentState();
+}
+
+class _SignUpScreenContentState extends State<_SignUpScreenContent> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
+  // UI-only state (not business logic)
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _agreeToTerms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to password changes for strength indicator
+    _passwordController.addListener(_onPasswordChanged);
+  }
 
   @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _onPasswordChanged() {
+    context.read<SignupViewModel>().updatePasswordStrength(_passwordController.text);
   }
 
   void _togglePasswordVisibility() {
@@ -55,17 +89,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _handleSignUp() {
     if (_formKey.currentState?.validate() ?? false) {
-      if (!_agreeToTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please agree to the Terms and Privacy Policy'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-      // Navigate to home on successful signup
-      context.go('/home');
+      context.read<SignupViewModel>().signup(
+            name: _fullNameController.text,
+            email: _emailController.text,
+            password: _passwordController.text,
+            confirmPassword: _confirmPasswordController.text,
+          );
     }
   }
 
@@ -79,12 +108,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _handleTerms() {
-    // Navigate to read-only legal document screen (Terms tab)
     context.push('/legal', extra: PolicyType.termsOfService);
   }
 
   void _handlePrivacyPolicy() {
-    // Navigate to read-only legal document screen (Privacy tab)
     context.push('/legal', extra: PolicyType.privacyPolicy);
   }
 
@@ -94,38 +121,79 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Full-screen background image
-          _buildBackgroundImage(),
-          
-          // Dark gradient overlay
-          _buildGradientOverlay(),
-          
-          // Main content
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: screenHeight - 
-                      MediaQuery.of(context).padding.top - 
-                      bottomPadding,
+      body: Consumer<SignupViewModel>(
+        builder: (context, viewModel, child) {
+          // Handle navigation on success
+          if (viewModel.isSuccess) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/home');
+            });
+          }
+
+          // Show error snackbar
+          if (viewModel.hasError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(viewModel.errorMessage ?? 'Sign up failed'),
+                  backgroundColor: Colors.red[700],
+                  behavior: SnackBarBehavior.floating,
+                  action: SnackBarAction(
+                    label: 'Dismiss',
+                    textColor: Colors.white,
+                    onPressed: () => viewModel.clearError(),
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Logo section at top
-                    _buildLogoSection(screenHeight),
-                    
-                    // Sign up card at bottom
-                    _buildSignUpCard(bottomPadding),
-                  ],
+              );
+              viewModel.clearError();
+            });
+          }
+
+          return Stack(
+            children: [
+              // Full-screen background image
+              _buildBackgroundImage(),
+
+              // Dark gradient overlay
+              _buildGradientOverlay(),
+
+              // Main content
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: screenHeight -
+                          MediaQuery.of(context).padding.top -
+                          bottomPadding,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Logo section at top
+                        _buildLogoSection(screenHeight),
+
+                        // Sign up card at bottom
+                        _buildSignUpCard(bottomPadding, viewModel),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+
+              // Loading overlay
+              if (viewModel.isLoading)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: _kPrimaryColor,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -211,12 +279,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   /// Builds the sign up card container with form elements.
-  Widget _buildSignUpCard(double bottomPadding) {
+  Widget _buildSignUpCard(double bottomPadding, SignupViewModel viewModel) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(
-        top: 16,
-      ),
+      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -246,23 +312,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
             const SizedBox(height: 14),
             _buildConfirmPasswordField(),
             const SizedBox(height: 14),
-            
+
             // Terms checkbox
-            _buildTermsCheckbox(),
+            _buildTermsCheckbox(viewModel),
             const SizedBox(height: 20),
-            
+
             // Sign Up button
-            _buildSignUpButton(),
+            _buildSignUpButton(viewModel),
             const SizedBox(height: 20),
-            
+
             // Divider with "or Sign up with"
             _buildDivider(),
             const SizedBox(height: 16),
-            
+
             // Social sign up icons
             _buildSocialSignUpRow(),
             const SizedBox(height: 20),
-            
+
             // Login link
             _buildLoginLink(),
           ],
@@ -339,8 +405,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         if (value == null || value.isEmpty) {
           return 'Password is required';
         }
-        if (value.length < 8) {
-          return 'Password must be at least 8 characters';
+        if (value.length < 6) {
+          return 'Password must be at least 6 characters';
         }
         return null;
       },
@@ -438,7 +504,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   /// Builds the terms and conditions checkbox.
-  Widget _buildTermsCheckbox() {
+  Widget _buildTermsCheckbox(SignupViewModel viewModel) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -446,11 +512,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           width: 24,
           height: 24,
           child: Checkbox(
-            value: _agreeToTerms,
+            value: viewModel.acceptedTerms,
             onChanged: (value) {
-              setState(() {
-                _agreeToTerms = value ?? false;
-              });
+              viewModel.setTermsAccepted(value ?? false);
             },
             activeColor: _kPrimaryColor,
             shape: RoundedRectangleBorder(
@@ -501,12 +565,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   /// Builds the main sign up button.
-  Widget _buildSignUpButton() {
+  Widget _buildSignUpButton(SignupViewModel viewModel) {
     return ElevatedButton(
-      onPressed: _handleSignUp,
+      onPressed: viewModel.canSubmit ? _handleSignUp : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: _kPrimaryColor,
         foregroundColor: Colors.white,
+        disabledBackgroundColor: Colors.grey[300],
         elevation: 4,
         shadowColor: _kPrimaryColor.withValues(alpha: 0.4),
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -514,13 +579,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
           borderRadius: BorderRadius.circular(14),
         ),
       ),
-      child: Text(
-        'Sign Up',
-        style: GoogleFonts.poppins(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      child: viewModel.isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : Text(
+              'Sign Up',
+              style: GoogleFonts.poppins(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
     );
   }
 

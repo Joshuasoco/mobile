@@ -7,17 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/views/auth/forgot_password_screen.dart';
+import '../../presentation/views/auth/login_screen.dart';
 import '../../presentation/views/auth/otp_verification_screen.dart';
 import '../../presentation/views/auth/reset_password_screen.dart';
-import '../../presentation/views/home/home_screen.dart';
+import '../../presentation/views/auth/signup_screen.dart';
+import '../../presentation/views/home_screen.dart';
 import '../../presentation/views/legal/legal_document_screen.dart';
-import '../../presentation/views/login/login_screen.dart';
-import '../../presentation/views/onboarding_view.dart';
-import '../../presentation/views/policy/terms_privacy_screen.dart';
-import '../../presentation/views/signup/signup_screen.dart';
+import '../../presentation/views/legal/terms_privacy_screen.dart';
+import '../../presentation/views/onboarding/onboarding_view.dart';
+import '../../presentation/views/onboarding/user_type_selector_screen.dart';
+import '../../presentation/views/splash_screen.dart';
 import '../../data/models/policy_section_model.dart';
-import '../../presentation/views/splash/splash_screen.dart';
-import '../../presentation/views/user_type/user_type_selector_screen.dart';
 
 /// Application route paths.
 abstract final class AppRoutes {

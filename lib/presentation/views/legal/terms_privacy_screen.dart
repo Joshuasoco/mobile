@@ -12,10 +12,10 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../viewmodels/terms_privacy_viewmodel.dart';
-import '../../widgets/policy/acceptance_checkbox.dart';
-import '../../widgets/policy/policy_action_buttons.dart';
-import '../../widgets/policy/policy_content_card.dart';
-import '../../widgets/policy/policy_tab_view.dart';
+import '../../widgets/legal/acceptance_checkbox.dart';
+import '../../widgets/legal/policy_action_buttons.dart';
+import '../../widgets/legal/policy_content_card.dart';
+import '../../widgets/legal/policy_tab_view.dart';
 
 /// Terms & Privacy Policy screen.
 /// 

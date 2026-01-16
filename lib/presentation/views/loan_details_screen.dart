@@ -1,12 +1,12 @@
-/// MSME Pathways - Smart Loan Support Screen
-///
-/// Displays current loan details, repayment progress, and eligibility checklist.
-/// Features iOS-style modern fintech UI with green color palette.
+// MSME Pathways - Smart Loan Support Screen
+//
+// Displays current loan details, repayment progress, and eligibility checklist.
+// Features iOS-style modern fintech UI with green color palette.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Loan details and support screen with modern UI.
 class LoanDetailsScreen extends StatelessWidget {

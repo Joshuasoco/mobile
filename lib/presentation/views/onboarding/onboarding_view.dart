@@ -10,9 +10,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../../core/constants/app_strings.dart';
-import '../viewmodels/onboarding_viewmodel.dart';
-import '../widgets/fullscreen_onboarding_page.dart';
+import '../../../core/constants/app_strings.dart';
+import '../../viewmodels/onboarding_viewmodel.dart';
+import '../../widgets/onboarding/fullscreen_onboarding_page.dart';
 
 /// Main onboarding view with 3 image pages.
 /// 

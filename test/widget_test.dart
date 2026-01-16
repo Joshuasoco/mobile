@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:frontend/presentation/views/onboarding_view.dart';
+import 'package:frontend/presentation/views/onboarding/onboarding_view.dart';
 
 void main() {
   testWidgets('Onboarding view renders without error', (WidgetTester tester) async {

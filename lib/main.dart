@@ -7,8 +7,14 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:provider/provider.dart';
+
 import 'core/router/app_router.dart';
+import 'core/services/app_state_service.dart';
+import 'core/services/storage_service.dart';
 import 'core/theme/app_theme.dart';
+import 'data/repositories/auth_repository.dart';
+import 'data/repositories/policy_repository.dart';
 
 /// Application entry point.
 /// 
@@ -33,7 +39,28 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(const MSMEPathwaysApp());
+    runApp(
+      MultiProvider(
+        providers: [
+          Provider<IStorageService>(
+            create: (_) => StorageService(),
+          ),
+          Provider<AppStateService>(
+            create: (_) => AppStateService(),
+          ),
+          ProxyProvider2<IStorageService, AppStateService, IAuthRepository>(
+            update: (_, storage, appState, __) => AuthRepository(
+              storageService: storage,
+              appStateService: appState,
+            ),
+          ),
+          Provider<IPolicyRepository>(
+            create: (_) => PolicyRepository(),
+          ),
+        ],
+        child: const MSMEPathwaysApp(),
+      ),
+    );
   });
 }
 
