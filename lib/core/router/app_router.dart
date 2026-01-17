@@ -10,6 +10,7 @@ import '../../presentation/views/auth/forgot_password_screen.dart';
 import '../../presentation/views/auth/login_screen.dart';
 import '../../presentation/views/auth/otp_verification_screen.dart';
 import '../../presentation/views/auth/reset_password_screen.dart';
+<<<<<<< refs/remotes/origin/new
 import '../../presentation/views/auth/signup_screen.dart';
 import '../../presentation/views/home_screen.dart';
 import '../../presentation/views/legal/legal_document_screen.dart';
@@ -18,6 +19,15 @@ import '../../presentation/views/onboarding/onboarding_view.dart';
 import '../../presentation/views/onboarding/user_type_selector_screen.dart';
 import '../../presentation/views/splash_screen.dart';
 import '../../data/models/policy_section_model.dart';
+=======
+import '../../presentation/views/home/home_screen.dart';
+import '../../presentation/views/login/login_screen.dart';
+import '../../presentation/views/notification/notification_screen.dart';
+import '../../presentation/views/onboarding_view.dart';
+import '../../presentation/views/policy/terms_privacy_screen.dart';
+import '../../presentation/views/signup/signup_screen.dart';
+import '../../presentation/views/splash/splash_screen.dart';
+>>>>>>> local
 
 /// Application route paths.
 abstract final class AppRoutes {
@@ -53,6 +63,9 @@ abstract final class AppRoutes {
   
   /// Reset password route
   static const String resetPassword = '/reset-password';
+  
+  /// Notifications route
+  static const String notifications = '/notifications';
 }
 
 /// Application router configuration.
@@ -256,6 +269,30 @@ class AppRouter {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Notifications screen
+      GoRoute(
+        path: AppRoutes.notifications,
+        name: 'notifications',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const NotificationScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            
+            var tween = Tween(begin: begin, end: end).chain(
+              CurveTween(curve: curve),
+            );
+            
+            return SlideTransition(
+              position: animation.drive(tween),
               child: child,
             );
           },

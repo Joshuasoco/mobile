@@ -9,7 +9,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+<<<<<<< refs/remotes/origin/new:lib/presentation/views/home_screen.dart
 import 'package:provider/provider.dart';
+=======
+import 'package:go_router/go_router.dart';
+>>>>>>> local:lib/presentation/views/home/home_screen.dart
 
 import '../../data/repositories/auth_repository.dart';
 import '../viewmodels/home_viewmodel.dart';
@@ -290,32 +294,38 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   Row(
                     children: [
                       // Notification icon
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Stack(
-                          children: [
-                            const Icon(
-                              Icons.notifications_outlined,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  shape: BoxShape.circle,
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to notification screen
+                          context.push('/notifications');
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Stack(
+                            children: [
+                              const Icon(
+                                Icons.notifications_outlined,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.redAccent,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
