@@ -2,8 +2,8 @@
 //
 // A premium login screen with full-screen background, gradient overlay,
 // form fields, and social login options.
-///
-/// Refactored to follow MVVM architecture with LoginViewModel.
+//
+// Refactored to follow MVVM architecture with LoginViewModel.
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../../../data/models/policy_section_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../viewmodels/login_viewmodel.dart';
+import '../../widgets/common/security_badge.dart';
 
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
@@ -299,6 +300,10 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
 
             // Login button
             _buildLoginButton(viewModel),
+            const SizedBox(height: 16),
+            
+            // Security Badge
+            const Center(child: SecurityBadge()),
             const SizedBox(height: 16),
 
             // Terms text

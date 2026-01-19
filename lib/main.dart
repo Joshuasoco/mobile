@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import 'core/router/app_router.dart';
 import 'core/services/app_state_service.dart';
+import 'core/services/form_draft_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/auth_repository.dart';
@@ -49,13 +50,16 @@ void main() {
             create: (_) => AppStateService(),
           ),
           ProxyProvider2<IStorageService, AppStateService, IAuthRepository>(
-            update: (_, storage, appState, __) => AuthRepository(
+            update: (context, storage, appState, previous) => AuthRepository(
               storageService: storage,
               appStateService: appState,
             ),
           ),
           Provider<IPolicyRepository>(
             create: (_) => PolicyRepository(),
+          ),
+          ProxyProvider<IStorageService, FormDraftService>(
+            update: (_, storage, __) => FormDraftService(storage),
           ),
         ],
         child: const MSMEPathwaysApp(),

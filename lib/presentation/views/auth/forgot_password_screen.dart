@@ -1,8 +1,8 @@
 // MSME Pathways - Forgot Password Screen
 //
 // Allows users to enter their email address to receive a password reset OTP.
-///
-/// Refactored to follow MVVM architecture with ForgotPasswordViewModel.
+//
+// Refactored to follow MVVM architecture with ForgotPasswordViewModel.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

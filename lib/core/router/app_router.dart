@@ -17,7 +17,10 @@ import '../../presentation/views/legal/terms_privacy_screen.dart';
 import '../../presentation/views/onboarding/onboarding_view.dart';
 import '../../presentation/views/onboarding/user_type_selector_screen.dart';
 import '../../presentation/views/splash_screen.dart';
+import '../../presentation/views/eligibility/eligibility_checker_screen.dart';
+import '../../presentation/views/eligibility/learn_to_qualify_screen.dart';
 import '../../data/models/policy_section_model.dart';
+import '../../data/models/eligibility_model.dart';
 
 /// Application route paths.
 abstract final class AppRoutes {
@@ -53,6 +56,12 @@ abstract final class AppRoutes {
   
   /// Reset password route
   static const String resetPassword = '/reset-password';
+  
+  /// Eligibility checker route (guest mode)
+  static const String eligibilityChecker = '/eligibility-checker';
+  
+  /// Learn to qualify route (educational content for non-qualified users)
+  static const String learnToQualify = '/learn-to-qualify';
 }
 
 /// Application router configuration.
@@ -260,6 +269,57 @@ class AppRouter {
             );
           },
         ),
+      ),
+      
+      // Eligibility checker screen (guest mode)
+      GoRoute(
+        path: AppRoutes.eligibilityChecker,
+        name: 'eligibilityChecker',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const EligibilityCheckerScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Learn to qualify screen (educational content)
+      GoRoute(
+        path: AppRoutes.learnToQualify,
+        name: 'learnToQualify',
+        pageBuilder: (context, state) {
+          // Accept optional score and answers as extra
+          final extra = state.extra as Map<String, dynamic>?;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: LearnToQualifyScreen(
+              currentScore: extra?['score'] as int?,
+              answers: extra?['answers'] as EligibilityAnswers?,
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+          );
+        },
       ),
     ],
   );

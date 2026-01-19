@@ -1,8 +1,8 @@
 // MSME Pathways - OTP Verification Screen
 //
 // Allows users to enter the 6-digit OTP sent to their email.
-///
-/// Refactored to follow MVVM architecture with OTPVerificationViewModel.
+//
+// Refactored to follow MVVM architecture with OTPVerificationViewModel.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

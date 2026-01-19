@@ -201,7 +201,7 @@ class _BottomNavigation extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             child: viewModel.isLastPage
                 ? _GetStartedButton(onPressed: viewModel.completeOnboarding)
-                : const SizedBox(height: 56), // Placeholder for layout
+                : const SizedBox(height: 120), // Placeholder for layout
           ),
         ],
       ),
@@ -209,7 +209,7 @@ class _BottomNavigation extends StatelessWidget {
   }
 }
 
-/// Get Started button for the final page.
+/// Action buttons for the final page.
 class _GetStartedButton extends StatelessWidget {
   const _GetStartedButton({required this.onPressed});
 
@@ -217,33 +217,67 @@ class _GetStartedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1565C0), // Primary blue
-          foregroundColor: Colors.white,
-          elevation: 4,
-          shadowColor: const Color(0x401565C0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Primary CTA - Check Eligibility (Guest Mode)
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: () => context.go('/eligibility-checker'),
+            icon: const Icon(Icons.fact_check_outlined),
+            label: const Text(
+              'Check Eligibility',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1565C0),
+              foregroundColor: Colors.white,
+              elevation: 4,
+              shadowColor: const Color(0x401565C0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
-        ),
-        child: const Text(
-          AppStrings.getStarted,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+        )
+            .animate()
+            .fadeIn(duration: 300.ms, curve: Curves.easeOut)
+            .slideY(begin: 0.2, end: 0, duration: 300.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 12),
+        
+        // Secondary CTA - Create Account
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: TextButton(
+            onPressed: onPressed,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF1565C0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+            ),
+            child: const Text(
+              'Create Account Instead',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms, curve: Curves.easeOut)
-        .slideY(begin: 0.2, end: 0, duration: 300.ms, curve: Curves.easeOut);
+        )
+            .animate()
+            .fadeIn(duration: 300.ms, delay: 100.ms, curve: Curves.easeOut),
+      ],
+    );
   }
 }
 

@@ -164,4 +164,35 @@ abstract final class AppStrings {
   /// User type selector screen semantics
   static const String userTypeSelectorSemantics = 
       'User type selection screen. Choose between Individual or Business.';
+
+  // ============================================================
+  // ELIGIBILITY CHECKER STRINGS
+  // ============================================================
+  
+  /// Check eligibility button text
+  static const String checkEligibility = 'Check Eligibility';
+  
+  /// Create account instead button text
+  static const String createAccountInstead = 'Create Account Instead';
+  
+  /// Eligibility checker screen title
+  static const String eligibilityTitle = 'Eligibility Check';
+  
+  /// Step 1 title - Business type
+  static const String eligibilityStep1Title = 'Ano ang iyong negosyo?';
+  
+  /// Step 2 title - Business age
+  static const String eligibilityStep2Title = 'Gaano katagal na ang negosyo mo?';
+  
+  /// Step 3 title - Monthly income
+  static const String eligibilityStep3Title = 'Magkano ang kita mo monthly?';
+  
+  /// Step 4 title - Loan amount needed
+  static const String eligibilityStep4Title = 'Magkano ang loan na kailangan mo?';
+  
+  /// Step 5 title - Documents available
+  static const String eligibilityStep5Title = 'May mga ito ka ba?';
+  
+  /// Check my eligibility button
+  static const String checkMyEligibility = 'Check My Eligibility';
 }

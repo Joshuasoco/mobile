@@ -3,8 +3,8 @@
 // A premium home screen displayed after successful login/signup.
 // Features a modern dashboard-style layout with quick actions,
 // financial overview, and personalized content.
-///
-/// Refactored to follow MVVM architecture with HomeViewModel.
+//
+// Refactored to follow MVVM architecture with HomeViewModel.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/repositories/auth_repository.dart';
+import '../widgets/home/partner_section.dart';
 import '../viewmodels/home_viewmodel.dart';
 import 'loan_details_screen.dart';
 import 'support_chat_screen.dart';
@@ -150,6 +151,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   _buildSectionTitle('Learning Resources'),
                   const SizedBox(height: 12),
                   _buildLearningResources(),
+                  const SizedBox(height: 24),
+
+                  // Partner section
+                  const PartnerSection(),
                   const SizedBox(height: 24),
                   
                   // Recent activity section

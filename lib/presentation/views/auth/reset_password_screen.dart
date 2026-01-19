@@ -1,8 +1,8 @@
 // MSME Pathways - Reset Password Screen
 //
 // Allows users to set a new password after OTP verification.
-///
-/// Refactored to follow MVVM architecture with ResetPasswordViewModel.
+//
+// Refactored to follow MVVM architecture with ResetPasswordViewModel.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

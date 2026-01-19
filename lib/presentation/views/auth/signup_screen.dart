@@ -2,8 +2,8 @@
 //
 // A premium sign up screen with full-screen background, gradient overlay,
 // registration form fields, and social sign up options.
-///
-/// Refactored to follow MVVM architecture with SignupViewModel.
+//
+// Refactored to follow MVVM architecture with SignupViewModel.
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../../../data/models/policy_section_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../viewmodels/signup_viewmodel.dart';
+import '../../widgets/common/security_badge.dart';
 
 /// Primary accent color - teal/green theme
 const Color _kPrimaryColor = Color(0xFF00897B);
@@ -319,6 +320,10 @@ class _SignUpScreenContentState extends State<_SignUpScreenContent> {
 
             // Sign Up button
             _buildSignUpButton(viewModel),
+            const SizedBox(height: 16),
+            
+            // Security Badge
+            const Center(child: SecurityBadge()),
             const SizedBox(height: 20),
 
             // Divider with "or Sign up with"
@@ -503,7 +508,7 @@ class _SignUpScreenContentState extends State<_SignUpScreenContent> {
     );
   }
 
-  /// Builds the terms and conditions checkbox.
+  /// Builds a clean, professional terms and conditions checkbox.
   Widget _buildTermsCheckbox(SignupViewModel viewModel) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
