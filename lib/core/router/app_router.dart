@@ -19,6 +19,12 @@ import '../../presentation/views/onboarding/user_type_selector_screen.dart';
 import '../../presentation/views/splash_screen.dart';
 import '../../presentation/views/eligibility/eligibility_checker_screen.dart';
 import '../../presentation/views/eligibility/learn_to_qualify_screen.dart';
+import '../../presentation/views/chat/ai_chatbot_screen.dart';
+import '../../presentation/views/education/loan_education_screen.dart';
+import '../../presentation/views/forms/business_info_form_screen.dart';
+import '../../presentation/views/prequalification/prequalification_screen.dart';
+import '../../presentation/views/blockchain/transaction_history_screen.dart';
+import '../../presentation/views/notifications/notifications_screen.dart';
 import '../../data/models/policy_section_model.dart';
 import '../../data/models/eligibility_model.dart';
 
@@ -62,6 +68,27 @@ abstract final class AppRoutes {
   
   /// Learn to qualify route (educational content for non-qualified users)
   static const String learnToQualify = '/learn-to-qualify';
+  
+  /// AI Chatbot route
+  static const String chatbot = '/chatbot';
+  
+  /// Loan Education route
+  static const String education = '/education';
+  
+  /// Business Info Form route
+  static const String businessInfoForm = '/forms/business-info';
+  
+  /// Income Pattern Form route
+  static const String incomePatternForm = '/forms/income-pattern';
+  
+  /// Pre-qualification route
+  static const String prequalification = '/prequalification';
+  
+  /// Transaction History route
+  static const String transactions = '/transactions';
+  
+  /// Notifications route
+  static const String notifications = '/notifications';
 }
 
 /// Application router configuration.
@@ -320,6 +347,138 @@ class AppRouter {
             },
           );
         },
+      ),
+      
+      // AI Chatbot screen
+      GoRoute(
+        path: AppRoutes.chatbot,
+        name: 'chatbot',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AIChatbotScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Loan Education screen
+      GoRoute(
+        path: AppRoutes.education,
+        name: 'education',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LoanEducationScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Business Info Form screen
+      GoRoute(
+        path: AppRoutes.businessInfoForm,
+        name: 'businessInfoForm',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const BusinessInfoFormScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Pre-qualification screen
+      GoRoute(
+        path: AppRoutes.prequalification,
+        name: 'prequalification',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PrequalificationScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Transaction History screen
+      GoRoute(
+        path: AppRoutes.transactions,
+        name: 'transactions',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const TransactionHistoryScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Notifications screen
+      GoRoute(
+        path: AppRoutes.notifications,
+        name: 'notifications',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const NotificationsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
     ],
   );

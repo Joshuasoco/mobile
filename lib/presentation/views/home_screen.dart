@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router/app_router.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../widgets/home/partner_section.dart';
 import '../viewmodels/home_viewmodel.dart';
@@ -136,7 +138,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   const SizedBox(height: 24),
                   
                   // Financial overview section
-                  _buildSectionTitle('Financial Overview'),
+                  _buildSectionTitle(
+                    'Financial Overview',
+                    onSeeAll: () => context.push(AppRoutes.transactions),
+                  ),
                   const SizedBox(height: 12),
                   _buildFinancialCards(viewModel),
                   const SizedBox(height: 24),
@@ -144,13 +149,16 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   // Quick actions section
                   _buildSectionTitle('Quick Actions'),
                   const SizedBox(height: 12),
-                  _buildQuickActions(),
+                  _buildQuickActions(context),
                   const SizedBox(height: 24),
                   
                   // Learning resources section
-                  _buildSectionTitle('Learning Resources'),
+                  _buildSectionTitle(
+                    'Learning Resources',
+                    onSeeAll: () => context.push(AppRoutes.education),
+                  ),
                   const SizedBox(height: 12),
-                  _buildLearningResources(),
+                  _buildLearningResources(context),
                   const SizedBox(height: 24),
 
                   // Partner section
@@ -158,7 +166,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   const SizedBox(height: 24),
                   
                   // Recent activity section
-                  _buildSectionTitle('Recent Activity'),
+                  _buildSectionTitle(
+                    'Recent Activity',
+                    onSeeAll: () => context.push(AppRoutes.transactions),
+                  ),
                   const SizedBox(height: 12),
                   _buildRecentActivity(),
                   const SizedBox(height: 32),
@@ -295,32 +306,36 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   Row(
                     children: [
                       // Notification icon
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Stack(
-                          children: [
-                            const Icon(
-                              Icons.notifications_outlined,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  shape: BoxShape.circle,
+                      InkWell(
+                        onTap: () => context.push(AppRoutes.notifications),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Stack(
+                            children: [
+                              const Icon(
+                                Icons.notifications_outlined,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.redAccent,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -458,7 +473,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   }
 
   /// Builds a section title.
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, {VoidCallback? onSeeAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -470,22 +485,23 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             color: const Color(0xFF2D3748),
           ),
         ),
-        TextButton(
-          onPressed: () {},
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: Text(
-            'See All',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: _kPrimaryColor,
-              fontWeight: FontWeight.w500,
+        if (onSeeAll != null)
+          TextButton(
+            onPressed: onSeeAll,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'See All',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: _kPrimaryColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -586,7 +602,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   }
 
   /// Builds the quick action buttons.
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -607,21 +623,25 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             icon: Icons.description_rounded,
             label: 'Apply Loan',
             color: _kPrimaryColor,
+            onTap: () => context.push(AppRoutes.prequalification),
           ),
           _buildQuickActionItem(
             icon: Icons.calculate_rounded,
             label: 'Calculator',
             color: const Color(0xFFFF7043),
+            onTap: () => context.push(AppRoutes.eligibilityChecker),
           ),
           _buildQuickActionItem(
             icon: Icons.analytics_rounded,
             label: 'Reports',
             color: const Color(0xFF7E57C2),
+            onTap: () => context.push(AppRoutes.transactions),
           ),
           _buildQuickActionItem(
             icon: Icons.support_agent_rounded,
             label: 'Support',
             color: const Color(0xFF42A5F5),
+            onTap: () => context.push(AppRoutes.chatbot),
           ),
         ],
       ),
@@ -633,9 +653,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
     required IconData icon,
     required String label,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Column(
         children: [
@@ -667,7 +688,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   }
 
   /// Builds the learning resources section.
-  Widget _buildLearningResources() {
+  Widget _buildLearningResources(BuildContext context) {
     return SizedBox(
       height: 160,
       child: ListView(
@@ -679,6 +700,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             subtitle: '5 lessons • 45 min',
             progress: 0.6,
             color: const Color(0xFF26A69A),
+            onTap: () => context.push(AppRoutes.education),
           ),
           const SizedBox(width: 14),
           _buildResourceCard(
@@ -686,6 +708,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             subtitle: '8 lessons • 1h 20min',
             progress: 0.3,
             color: const Color(0xFF5C6BC0),
+            onTap: () => context.push(AppRoutes.education),
           ),
           const SizedBox(width: 14),
           _buildResourceCard(
@@ -693,6 +716,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             subtitle: '4 lessons • 30 min',
             progress: 0.0,
             color: const Color(0xFFEC407A),
+            onTap: () => context.push(AppRoutes.education),
           ),
         ],
       ),
@@ -705,93 +729,98 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
     required String subtitle,
     required double progress,
     required Color color,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color,
-            color.withValues(alpha: 0.8),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 200,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color,
+              color.withValues(alpha: 0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.play_circle_filled_rounded,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                subtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: Colors.white.withValues(alpha: 0.85),
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (progress > 0) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                    minHeight: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.play_circle_filled_rounded,
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
-              ] else
+                const SizedBox(height: 12),
                 Text(
-                  'Start Learning →',
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.85),
                   ),
                 ),
-            ],
-          ),
-        ],
+                const SizedBox(height: 8),
+                if (progress > 0) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                      minHeight: 4,
+                    ),
+                  ),
+                ] else
+                  Text(
+                    'Start Learning →',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
