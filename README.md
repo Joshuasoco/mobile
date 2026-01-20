@@ -71,19 +71,6 @@
 
 ---
 
-## 📸 Screenshots
-
-<div align="center">
-
-| Splash Screen | Onboarding | Login |
-|:---:|:---:|:---:|
-| ![Splash](screenshots/splash.png) | ![Onboarding](screenshots/onboarding.png) | ![Login](screenshots/login.png) |
-
-| Home Dashboard | AI Chatbot | Loan Assessment |
-|:---:|:---:|:---:|
-| ![Home](screenshots/home.png) | ![Chatbot](screenshots/chatbot.png) | ![Assessment](screenshots/assessment.png) |
-
-</div>
 
 ---
 
@@ -473,7 +460,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 🙏 Acknowledgments
 
 - **PHINMA - University of Pangasinan** - For academic support
-- **Bangko Sentral ng Pilipinas** - For financial inclusion data
 - **DTI Philippines** - For MSME statistics
 - **Our Target Users** - Sari-sari store owners, vendors, and microentrepreneurs who provided valuable feedback
 
