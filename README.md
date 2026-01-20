@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![MSME Pathways Logo](assets/images/logo.png)
+![MSME Pathways Logo](assets/images/msmeLogo.png)
 
 **Smart Loan Support for the Informal Sector**
 
