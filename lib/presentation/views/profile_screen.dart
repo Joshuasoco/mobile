@@ -100,38 +100,75 @@ class _ProfileScreenContentState extends State<_ProfileScreenContent>
       return _buildErrorState(viewModel);
     }
 
-    return RefreshIndicator(
-      onRefresh: viewModel.refreshProfile,
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          const ProfileAppBar(),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                if (viewModel.userProfile != null && viewModel.stats != null)
-                  ProfileCard(
-                    userProfile: viewModel.userProfile!,
-                    stats: viewModel.stats!,
-                    onEditTap: viewModel.editProfile,
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: viewModel.refreshProfile,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // Add top padding where header used to be
+              SliverToBoxAdapter(
+                child: SizedBox(height: MediaQuery.of(context).padding.top + 60),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    if (viewModel.userProfile != null && viewModel.stats != null)
+                      ProfileCard(
+                        userProfile: viewModel.userProfile!,
+                        stats: viewModel.stats!,
+                        onEditTap: viewModel.editProfile,
+                      ),
+                    const SizedBox(height: 24),
+                    ...viewModel.sections.map((section) => Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: SettingsSectionWidget(
+                        section: section,
+                        onItemTap: _onSettingsTap,
+                      ),
+                    )),
+                    LogoutButton(onLogout: viewModel.logout),
+                    const SizedBox(height: 24),
+                    const ProfileFooter(),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Floating settings button
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 8,
+          right: 16,
+          child: IconButton(
+            onPressed: () {
+              // Settings action
+              debugPrint('Settings tapped');
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                const SizedBox(height: 24),
-                ...viewModel.sections.map((section) => Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SettingsSectionWidget(
-                    section: section,
-                    onItemTap: _onSettingsTap,
-                  ),
-                )),
-                LogoutButton(onLogout: viewModel.logout),
-                const SizedBox(height: 24),
-                const ProfileFooter(),
-              ]),
+                ],
+              ),
+              child: const Icon(
+                Icons.settings_outlined,
+                color: Color(0xFF00897B),
+                size: 22,
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

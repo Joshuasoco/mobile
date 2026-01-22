@@ -1,6 +1,6 @@
 /// MSME Pathways - Profile App Bar Widget
 ///
-/// Gradient sliver app bar for the profile screen.
+/// Simple, clean sliver app bar for the profile screen.
 library;
 
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 const Color _kPrimaryColor = Color(0xFF00897B);
 const Color _kPrimaryDark = Color(0xFF00695C);
 
-/// Profile sliver app bar with gradient background.
+/// Simple profile sliver app bar with clean design.
 class ProfileAppBar extends StatelessWidget {
   const ProfileAppBar({
     super.key,
@@ -24,7 +24,7 @@ class ProfileAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 100,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -38,35 +38,6 @@ class ProfileAppBar extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [_kPrimaryColor, _kPrimaryDark],
             ),
-          ),
-          child: Stack(
-            children: [
-              // Decorative circles
-              Positioned(
-                top: -30,
-                right: -30,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.05),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -20,
-                left: -40,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.03),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
@@ -82,20 +53,13 @@ class ProfileAppBar extends StatelessWidget {
       actions: [
         IconButton(
           onPressed: onSettingsTap,
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.settings_outlined,
-              color: Colors.white,
-              size: 20,
-            ),
+          icon: const Icon(
+            Icons.settings_outlined,
+            color: Colors.white,
+            size: 22,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
       ],
     );
   }
