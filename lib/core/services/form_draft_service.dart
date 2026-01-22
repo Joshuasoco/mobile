@@ -45,4 +45,42 @@ class FormDraftService {
     await _storageService.remove(_eligibilityKey);
     debugPrint('FormDraftService: Cleared eligibility draft');
   }
+
+  /// Generic draft saving for any form data (key-value)
+  Future<void> saveDraft(String key, Map<String, dynamic> data) async {
+    try {
+      final jsonString = jsonEncode(data);
+      await _storageService.saveString(key, jsonString);
+      debugPrint('FormDraftService: Saved draft for key: $key');
+    } catch (e) {
+      debugPrint('FormDraftService: Error saving draft - $e');
+    }
+  }
+
+  /// Generic draft loading for any form data
+  Future<Map<String, dynamic>?> loadDraft(String key) async {
+    try {
+      final jsonString = await _storageService.getString(key);
+      if (jsonString == null) return null;
+      
+      final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+      debugPrint('FormDraftService: Loaded draft for key: $key');
+      return jsonMap;
+    } catch (e) {
+      debugPrint('FormDraftService: Error loading draft - $e');
+      return null;
+    }
+  }
+
+  /// Check if draft exists for key
+  Future<bool> hasDraft(String key) async {
+    final draft = await loadDraft(key);
+    return draft != null;
+  }
+
+  /// Delete draft for key
+  Future<void> deleteDraft(String key) async {
+    await _storageService.remove(key);
+    debugPrint('FormDraftService: Deleted draft for key: $key');
+  }
 }

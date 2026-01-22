@@ -182,14 +182,14 @@ class HomeViewModel extends ChangeNotifier {
       id: 'apply_loan',
       icon: Icons.description_rounded,
       label: 'Apply Loan',
-      route: AppRoutes.prequalification,
+      route: AppRoutes.loanApplication,
       color: const Color(0xFF00897B),
     ),
     QuickActionItem(
       id: 'calculator',
       icon: Icons.calculate_rounded,
       label: 'Calculator',
-      route: AppRoutes.eligibilityChecker,
+      route: AppRoutes.calculator,
       color: const Color(0xFFFF7043),
     ),
     QuickActionItem(

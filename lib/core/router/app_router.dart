@@ -25,6 +25,8 @@ import '../../presentation/views/forms/business_info_form_screen.dart';
 import '../../presentation/views/prequalification/prequalification_screen.dart';
 import '../../presentation/views/blockchain/transaction_history_screen.dart';
 import '../../presentation/views/notifications/notifications_screen.dart';
+import '../../presentation/views/calculator/calculator_screen.dart';
+import '../../presentation/views/loan/loan_application_screen.dart';
 import '../../data/models/policy_section_model.dart';
 import '../../data/models/eligibility_model.dart';
 
@@ -89,6 +91,12 @@ abstract final class AppRoutes {
   
   /// Notifications route
   static const String notifications = '/notifications';
+  
+  /// Calculator route
+  static const String calculator = '/calculator';
+  
+  /// Loan Application route
+  static const String loanApplication = '/loan-application';
 }
 
 /// Application router configuration.
@@ -470,6 +478,50 @@ class AppRouter {
             return SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Calculator screen
+      GoRoute(
+        path: AppRoutes.calculator,
+        name: 'calculator',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CalculatorScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      
+      // Loan Application screen
+      GoRoute(
+        path: AppRoutes.loanApplication,
+        name: 'loanApplication',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LoanApplicationScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
                 end: Offset.zero,
               ).animate(CurvedAnimation(
                 parent: animation,
