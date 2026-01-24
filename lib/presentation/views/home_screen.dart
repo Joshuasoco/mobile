@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/constants/tooltip_definitions.dart';
 import '../../core/router/app_router.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../widgets/home/home_app_bar.dart';
@@ -25,6 +26,7 @@ import '../widgets/home/recent_activity_list.dart';
 import '../widgets/home/section_title.dart';
 import '../widgets/home/partner_section.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/tooltip_viewmodel.dart';
 import 'loan_details_screen.dart';
 import 'support_chat_screen.dart';
 import 'profile_screen.dart';
@@ -54,6 +56,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  bool _tooltipsTriggered = false;
 
   @override
   void initState() {
@@ -67,6 +70,21 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
+    
+    // Trigger tooltips after initial build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _triggerTooltips());
+  }
+
+  Future<void> _triggerTooltips() async {
+    if (_tooltipsTriggered) return;
+    _tooltipsTriggered = true;
+    
+    // Wait for animations and layout to complete
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!mounted) return;
+    
+    final tooltipViewModel = context.read<TooltipViewModel>();
+    await tooltipViewModel.startTooltipSequence(HomeTooltipConfigs.getTooltips());
   }
 
   @override
@@ -131,6 +149,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
           padding: const EdgeInsets.all(20),
           sliver: SliverList(delegate: SliverChildListDelegate([
             DashboardStatsCard(
+              key: HomeTooltipKeys.dashboardCard,
               businessReadiness: viewModel.businessReadiness,
               businessReadinessFormatted: viewModel.businessReadinessFormatted,
               monthlyImprovementFormatted: viewModel.monthlyImprovementFormatted,
@@ -139,6 +158,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             SectionTitle(title: 'Financial Overview', onSeeAll: () => _navigateTo(AppRoutes.transactions, viewModel)),
             const SizedBox(height: 12),
             FinancialStatsCards(
+              key: HomeTooltipKeys.loanEligibility,
               maxLoanEligibleFormatted: viewModel.maxLoanEligibleFormatted,
               completedCourses: viewModel.completedCourses,
               onLoanTap: () => _navigateTo(AppRoutes.prequalification, viewModel),
@@ -148,6 +168,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             const SectionTitle(title: 'Quick Actions'),
             const SizedBox(height: 12),
             QuickActionsRow(
+              key: HomeTooltipKeys.quickActionsRow,
               actions: viewModel.quickActions,
               onActionTap: (action) => _navigateTo(action.route, viewModel, featureId: action.id),
             ),
@@ -160,6 +181,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             SectionTitle(title: 'Learning Resources', onSeeAll: () => _navigateTo(AppRoutes.education, viewModel)),
             const SizedBox(height: 12),
             LearningResourcesSection(
+              key: HomeTooltipKeys.educationSection,
               resources: viewModel.learningResources,
               onResourceTap: (resource) => _navigateTo(resource.route, viewModel, featureId: resource.id),
             ),

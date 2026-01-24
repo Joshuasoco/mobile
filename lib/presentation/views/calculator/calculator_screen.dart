@@ -8,7 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/tooltip_definitions.dart';
 import '../../viewmodels/calculator_viewmodel.dart';
+import '../../viewmodels/contextual_tutorial_viewmodel.dart';
 import '../../widgets/calculator/calculator_widgets.dart';
 
 /// Financial calculator screen.
@@ -32,6 +34,8 @@ class _CalculatorContent extends StatefulWidget {
 }
 
 class _CalculatorContentState extends State<_CalculatorContent> {
+  bool _tutorialTriggered = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +45,21 @@ class _CalculatorContentState extends State<_CalculatorContent> {
         statusBarIconBrightness: Brightness.light,
       ),
     );
+
+    // Trigger tutorial after initial build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _triggerTutorial());
+  }
+
+  Future<void> _triggerTutorial() async {
+    if (_tutorialTriggered) return;
+    _tutorialTriggered = true;
+
+    // Wait for screen to settle
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    final tutorialViewModel = context.read<ContextualTutorialViewModel>();
+    await tutorialViewModel.startTutorial(CalculatorTutorialConfig.tutorial);
   }
 
   @override

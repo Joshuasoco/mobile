@@ -9,10 +9,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/services/tooltip_service.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../viewmodels/profile_viewmodel.dart';
-import '../widgets/profile/profile_app_bar.dart';
 import '../widgets/profile/profile_card.dart';
 import '../widgets/profile/settings_section_widget.dart';
 import '../widgets/profile/logout_button.dart';
@@ -29,6 +29,7 @@ class ProfileScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => ProfileViewModel(
         authRepository: context.read<IAuthRepository>(),
+        tooltipService: context.read<ITooltipService>(),
       ),
       child: const _ProfileScreenContent(),
     );

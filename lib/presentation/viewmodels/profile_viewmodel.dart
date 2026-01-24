@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/services/tooltip_service.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/repositories/auth_repository.dart';
 
@@ -16,11 +17,14 @@ enum ProfileState { initial, loading, loaded, error }
 class ProfileViewModel extends ChangeNotifier {
   ProfileViewModel({
     required IAuthRepository authRepository,
-  }) : _authRepository = authRepository {
+    ITooltipService? tooltipService,
+  })  : _authRepository = authRepository,
+        _tooltipService = tooltipService {
     _initialize();
   }
 
   final IAuthRepository _authRepository;
+  final ITooltipService? _tooltipService;
 
   // ============================================================
   // STATE
@@ -205,6 +209,13 @@ class ProfileViewModel extends ChangeNotifier {
             iconColor: Color(0xFF0EA5E9),
             route: '/support',
           ),
+          const SettingsItem(
+            id: 'reset_tutorials',
+            icon: Icons.replay_rounded,
+            title: 'Reset Tutorials',
+            subtitle: 'Show feature guides again',
+            iconColor: Color(0xFF8B5CF6),
+          ),
         ],
       ),
     ];
@@ -233,6 +244,27 @@ class ProfileViewModel extends ChangeNotifier {
   void onSettingsTap(SettingsItem item) {
     // Track analytics
     debugPrint('Settings tapped: ${item.id}');
+    
+    // Handle reset tutorials action
+    if (item.id == 'reset_tutorials') {
+      resetTutorials();
+    }
+  }
+
+  /// Reset all tooltips and tutorials.
+  Future<void> resetTutorials() async {
+    final tooltipService = _tooltipService;
+    if (tooltipService == null) {
+      debugPrint('ProfileViewModel: TooltipService not available');
+      return;
+    }
+    
+    try {
+      await tooltipService.resetAll();
+      debugPrint('ProfileViewModel: All tutorials reset successfully');
+    } catch (e) {
+      debugPrint('ProfileViewModel: Failed to reset tutorials - $e');
+    }
   }
 
   /// Handle logout.

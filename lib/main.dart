@@ -13,9 +13,13 @@ import 'core/router/app_router.dart';
 import 'core/services/app_state_service.dart';
 import 'core/services/form_draft_service.dart';
 import 'core/services/storage_service.dart';
+import 'core/services/tooltip_service.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/policy_repository.dart';
+import 'presentation/viewmodels/contextual_tutorial_viewmodel.dart';
+import 'presentation/viewmodels/tooltip_viewmodel.dart';
+import 'presentation/widgets/tooltips/tooltip_overlay.dart';
 
 /// Application entry point.
 /// 
@@ -61,6 +65,24 @@ void main() {
           ProxyProvider<IStorageService, FormDraftService>(
             update: (_, storage, __) => FormDraftService(storage),
           ),
+          // Tooltip/Tutorial Services
+          ProxyProvider<IStorageService, ITooltipService>(
+            update: (_, storage, __) => TooltipService(storageService: storage),
+          ),
+          ChangeNotifierProxyProvider<ITooltipService, TooltipViewModel>(
+            create: (context) => TooltipViewModel(
+              tooltipService: context.read<ITooltipService>(),
+            ),
+            update: (_, tooltipService, previous) =>
+                previous ?? TooltipViewModel(tooltipService: tooltipService),
+          ),
+          ChangeNotifierProxyProvider<ITooltipService, ContextualTutorialViewModel>(
+            create: (context) => ContextualTutorialViewModel(
+              tooltipService: context.read<ITooltipService>(),
+            ),
+            update: (_, tooltipService, previous) =>
+                previous ?? ContextualTutorialViewModel(tooltipService: tooltipService),
+          ),
         ],
         child: const MSMEPathwaysApp(),
       ),
@@ -101,7 +123,7 @@ class MSMEPathwaysApp extends StatelessWidget {
         };
         
         // Apply text scaling limits for accessibility while maintaining layout
-        return MediaQuery(
+        final scaledChild = MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(
               MediaQuery.of(context).textScaler.scale(1.0).clamp(0.8, 1.3),
@@ -109,6 +131,9 @@ class MSMEPathwaysApp extends StatelessWidget {
           ),
           child: child ?? const SizedBox.shrink(),
         );
+
+        // Wrap with tooltip overlay manager
+        return TooltipOverlayManager(child: scaledChild);
       },
     );
   }
