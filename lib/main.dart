@@ -63,11 +63,11 @@ void main() {
             create: (_) => PolicyRepository(),
           ),
           ProxyProvider<IStorageService, FormDraftService>(
-            update: (_, storage, __) => FormDraftService(storage),
+            update: (_, storage, _) => FormDraftService(storage),
           ),
           // Tooltip/Tutorial Services
           ProxyProvider<IStorageService, ITooltipService>(
-            update: (_, storage, __) => TooltipService(storageService: storage),
+            update: (_, storage, _) => TooltipService(storageService: storage),
           ),
           ChangeNotifierProxyProvider<ITooltipService, TooltipViewModel>(
             create: (context) => TooltipViewModel(

@@ -91,9 +91,6 @@ class _TooltipOverlayContent extends StatelessWidget {
     final bottomSafeArea = mediaQuery.padding.bottom;
     final topSafeArea = mediaQuery.padding.top;
     
-    // Usable screen area (excluding nav bars and safe areas)
-    final usableHeight = screenSize.height - bottomNavHeight - bottomSafeArea - topSafeArea;
-
     // Calculate optimal position with bottom nav consideration
     final position = TooltipPositionCalculator.calculateBestPosition(
       targetRect: targetRect,

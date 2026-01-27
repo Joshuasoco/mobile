@@ -13,7 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Primary accent color for the app bar.
 const Color _kPrimaryColor = Color(0xFF00897B);
-const Color _kPrimaryDark = Color(0xFF00695C);
 
 /// Modern sliver app bar for the home screen with curved edge and decorative elements.
 ///
@@ -227,10 +226,6 @@ class _HeaderCurveClipper extends CustomClipper<Path> {
     path.lineTo(0, size.height - 40);
     
     // Create smooth curve at bottom
-    final controlPoint1 = Offset(size.width * 0.25, size.height - 20);
-    final controlPoint2 = Offset(size.width * 0.75, size.height - 20);
-    final endPoint = Offset(size.width, size.height - 40);
-    
     path.quadraticBezierTo(
       size.width * 0.5,
       size.height,

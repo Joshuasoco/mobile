@@ -364,7 +364,7 @@ class AmortizationTableCard extends StatelessWidget {
               itemCount: result.amortizationSchedule.length > 12
                   ? 13 // First 12 + last
                   : result.amortizationSchedule.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, indent: 20, endIndent: 20),
+              separatorBuilder: (_, _) => const Divider(height: 1, indent: 20, endIndent: 20),
               itemBuilder: (context, index) {
                 final entry = index == 12 && result.amortizationSchedule.length > 12
                     ? result.amortizationSchedule.last

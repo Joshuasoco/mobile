@@ -175,7 +175,7 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
                         : ListView.separated(
                             padding: const EdgeInsets.all(20),
                             itemCount: viewModel.filteredTransactions.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, _) => const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final transaction = viewModel.filteredTransactions[index];
                               return _TransactionTile(

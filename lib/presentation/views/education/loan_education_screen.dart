@@ -273,7 +273,7 @@ class _LoanEducationContentState extends State<_LoanEducationContent> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: viewModel.inProgressModules.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final module = viewModel.inProgressModules[index];
           return SizedBox(
