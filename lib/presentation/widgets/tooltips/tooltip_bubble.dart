@@ -28,6 +28,7 @@ class TooltipBubble extends StatelessWidget {
     this.maxWidth = 280,
     this.backgroundColor,
     this.textColor,
+    this.arrowOffset,
   });
 
   /// Tooltip configuration.
@@ -63,6 +64,10 @@ class TooltipBubble extends StatelessWidget {
   /// Text color override.
   final Color? textColor;
 
+  /// Custom arrow horizontal offset from left edge (for dynamic positioning).
+  /// If null, arrow will be positioned based on CrossAxisAlignment.
+  final double? arrowOffset;
+
   @override
   Widget build(BuildContext context) {
     final tooltipPosition = position ?? config.position;
@@ -73,11 +78,13 @@ class TooltipBubble extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: maxWidth),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: _getCrossAxisAlignment(tooltipPosition),
+        crossAxisAlignment: arrowOffset != null 
+            ? CrossAxisAlignment.start 
+            : _getCrossAxisAlignment(tooltipPosition),
         children: [
           // Arrow at top for bottom-positioned tooltips
           if (_shouldShowArrowOnTop(tooltipPosition) && config.showArrow)
-            _buildArrow(tooltipPosition, bgColor),
+            _buildArrowWithOffset(tooltipPosition, bgColor),
 
           // Main bubble content
           Container(
@@ -259,7 +266,7 @@ class TooltipBubble extends StatelessWidget {
 
           // Arrow at bottom for top-positioned tooltips
           if (_shouldShowArrowOnBottom(tooltipPosition) && config.showArrow)
-            _buildArrow(tooltipPosition, bgColor),
+            _buildArrowWithOffset(tooltipPosition, bgColor),
         ],
       ),
     )
@@ -302,6 +309,25 @@ class TooltipBubble extends StatelessWidget {
       ),
       size: const Size(20, 10),
     );
+  }
+
+  /// Builds the arrow with optional custom horizontal offset for precise targeting.
+  Widget _buildArrowWithOffset(TooltipPosition position, Color bgColor) {
+    if (arrowOffset != null) {
+      // Use custom offset - position arrow at specific horizontal location
+      return Padding(
+        padding: EdgeInsets.only(left: arrowOffset!),
+        child: CustomPaint(
+          painter: _ArrowPainter(
+            color: bgColor,
+            position: position,
+          ),
+          size: const Size(20, 10),
+        ),
+      );
+    }
+    // Fall back to default arrow positioning
+    return _buildArrow(position, bgColor);
   }
 
   CrossAxisAlignment _getCrossAxisAlignment(TooltipPosition position) {
@@ -473,7 +499,8 @@ class TooltipPositionCalculator {
 
     // Prefer top position if near bottom of screen (near nav bar)
     // This ensures tooltips don't overlap with bottom navigation
-    final isNearBottom = targetRect.bottom > (screenSize.height - bottomInset - tooltipHeight - 50);
+    // Use a more aggressive threshold to catch elements near the bottom
+    final isNearBottom = targetRect.bottom > (screenSize.height - bottomInset - tooltipHeight - 80);
     
     if (isNearBottom && spaceAbove >= tooltipHeight) {
       return TooltipPosition.top;
@@ -494,5 +521,25 @@ class TooltipPositionCalculator {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return sortedEntries.first.key;
+  }
+  
+  /// Calculate the horizontal offset for the arrow to point at the target center.
+  /// Returns the offset from the left edge of the tooltip where the arrow should be.
+  static double calculateArrowOffset({
+    required Rect targetRect,
+    required double tooltipLeft,
+    required double tooltipWidth,
+    double arrowWidth = 20,
+    double minPadding = 24,
+  }) {
+    // Calculate where the target center is relative to the tooltip
+    final targetCenterX = targetRect.center.dx;
+    final arrowCenterX = targetCenterX - tooltipLeft;
+    
+    // Clamp to keep arrow within tooltip bounds with padding
+    final minOffset = minPadding;
+    final maxOffset = tooltipWidth - arrowWidth - minPadding;
+    
+    return arrowCenterX.clamp(minOffset, maxOffset);
   }
 }

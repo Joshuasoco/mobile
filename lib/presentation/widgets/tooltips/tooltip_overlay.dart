@@ -86,10 +86,10 @@ class _TooltipOverlayContent extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     
     // Account for bottom navigation bar and safe areas
-    // Typical bottom nav height is ~60-80, plus safe area
+    // Use view padding for more accurate safe area detection across devices
     final bottomNavHeight = 80.0;
-    final bottomSafeArea = mediaQuery.padding.bottom;
-    final topSafeArea = mediaQuery.padding.top;
+    final bottomSafeArea = mediaQuery.viewPadding.bottom;
+    final topSafeArea = mediaQuery.viewPadding.top;
     
     // Calculate optimal position with bottom nav consideration
     final position = TooltipPositionCalculator.calculateBestPosition(
@@ -100,7 +100,8 @@ class _TooltipOverlayContent extends StatelessWidget {
     );
 
     // Calculate tooltip offset
-    const tooltipSize = Size(280, 180);
+    const tooltipWidth = 280.0;
+    const tooltipSize = Size(tooltipWidth, 180);
     final offset = TooltipPositionCalculator.calculateOffset(
       targetRect: targetRect,
       tooltipSize: tooltipSize,
@@ -108,6 +109,13 @@ class _TooltipOverlayContent extends StatelessWidget {
       position: position,
       bottomInset: bottomNavHeight + bottomSafeArea,
       topInset: topSafeArea,
+    );
+
+    // Calculate dynamic arrow offset to point at target center
+    final arrowOffset = TooltipPositionCalculator.calculateArrowOffset(
+      targetRect: targetRect,
+      tooltipLeft: offset.dx,
+      tooltipWidth: tooltipWidth,
     );
 
     return TooltipHighlight(
@@ -120,6 +128,7 @@ class _TooltipOverlayContent extends StatelessWidget {
         child: TooltipBubble(
           config: tooltip,
           position: position,
+          arrowOffset: arrowOffset,
           onDismiss: () => viewModel.dismissCurrentTooltip(),
           onDontShowAgain: tooltip.showDontShowAgain
               ? () => viewModel.dismissPermanently()
